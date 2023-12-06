@@ -6,7 +6,7 @@
 #    By: svidot <svidot@student.42.fr>              +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/10/29 08:16:28 by seblin            #+#    #+#              #
-#    Updated: 2023/12/04 07:10:43 by svidot           ###   ########.fr        #
+#    Updated: 2023/12/06 11:41:23 by svidot           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -47,7 +47,7 @@ clean :
 fclean : 
 	@echo " cleanning ft_printf objects 🧻"
 	@rm -f $(OBJECTS)
-	@echo " cleanning libftprintf.a 🚽"
+	@echo " cleanning $(NAME) 🚽"
 	@rm -f $(NAME)
 	@$(MAKE) -s -C $(LIBFTDIR) fclean 
 	

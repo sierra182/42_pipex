@@ -16,7 +16,7 @@ HEADERS_DIR = include
 SRC_DIR = sources
 
 CC = cc
-CFLAGS = -I$(HEADERS_DIR) -I$(LIBFT_DIR) -I$(FT_PRINTF_DIR) -Wall -Wextra -Werror
+CFLAGS = -I$(HEADERS_DIR) -I$(LIBFT_DIR) -I$(FT_PRINTF_DIR) #-Wall -Wextra -Werror
 LDFLAGS = $(FT_PRINTF_DIR)/libftprintf.a
 
 SOURCES = $(SRC_DIR)/main.c 

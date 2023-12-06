@@ -6,7 +6,7 @@
 #    By: svidot <svidot@student.42.fr>              +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/12/04 06:56:29 by svidot            #+#    #+#              #
-#    Updated: 2023/12/04 07:08:59 by svidot           ###   ########.fr        #
+#    Updated: 2023/12/06 11:42:06 by svidot           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -24,6 +24,7 @@ SOURCES_BONUS = ft_lstnew_bonus.c ft_lstadd_front_bonus.c ft_lstsize_bonus.c ft_
 				ft_lstdelone_bonus.c ft_lstclear_bonus.c ft_lstiter_bonus.c ft_lstmap_bonus.c
 OBJECTS_BONUS = $(SOURCES_BONUS:.c=.o)
 BONUS_FLAG = 0
+
 .PHONY: all clean fclean re bonus 
 
 all: $(NAME)
@@ -52,7 +53,7 @@ clean:
 	@rm -f $(OBJECTS) $(OBJECTS_BONUS)
 
 fclean: clean
-	@echo " cleanning libft.a 🚽"
+	@echo " cleanning $(NAME) 🚽"
 	@rm -f $(NAME)
 
 re: fclean all
