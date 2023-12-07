@@ -11,10 +11,9 @@
 /* ************************************************************************** */
 
 #include "libft/libft.h"
-#include "ft_printf.h"
 #include <stdarg.h> 
 #include <stdint.h> 
-//
+
 static int	putnbr_base(uintptr_t n, unsigned int base, char casse, char pref)
 {
 	int	size;

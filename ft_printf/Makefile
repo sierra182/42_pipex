@@ -3,16 +3,15 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: svidot <svidot@student.42.fr>              +#+  +:+       +#+         #
+#    By: seblin <seblin@student.42.fr>              +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/10/29 08:16:28 by seblin            #+#    #+#              #
-#    Updated: 2023/12/06 11:41:23 by svidot           ###   ########.fr        #
+#    Updated: 2023/12/07 20:01:04 by seblin           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 CC = cc 
 CFLAGS = -Wall -Wextra -Werror
-HEADER = ft_printf.h
 NAME = libftprintf.a
 SOURCES = ft_printf.c
 OBJECTS = $(SOURCES:.c=.o)
@@ -24,10 +23,9 @@ LIBFTPATH = $(LIBFTDIR)/libft.a
 all : libft $(NAME)
 	
 libft : 	
-	@$(MAKE) -s -C $(LIBFTDIR) && \
-	$(MAKE) -s -C $(LIBFTDIR) bonus
+	@$(MAKE) -s -C $(LIBFTDIR)	
 	
-%.o : %.c $(LIBFTPATH) $(HEADER)
+%.o : %.c $(LIBFTPATH)
 	@echo "\033[0;32m compiling $<...\033[0m" 🚀
 	@$(CC) $(CFLAGS) $< -c -o $@
 

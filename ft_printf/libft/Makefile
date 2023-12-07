@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: svidot <svidot@student.42.fr>              +#+  +:+       +#+         #
+#    By: seblin <seblin@student.42.fr>              +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/12/04 06:56:29 by svidot            #+#    #+#              #
-#    Updated: 2023/12/06 11:42:06 by svidot           ###   ########.fr        #
+#    Updated: 2023/12/07 21:51:51 by seblin           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -25,7 +25,7 @@ SOURCES_BONUS = ft_lstnew_bonus.c ft_lstadd_front_bonus.c ft_lstsize_bonus.c ft_
 OBJECTS_BONUS = $(SOURCES_BONUS:.c=.o)
 BONUS_FLAG = 0
 
-.PHONY: all clean fclean re bonus 
+.PHONY: all clean fclean re bonus test
 
 all: $(NAME)
 
@@ -33,6 +33,12 @@ all: $(NAME)
 	@echo "\033[0;32m compiling libft object $<...\033[0m" 🚀
 	@$(CC) $(CFLAGS) $< -c -o $@
 
+%_bonus.o : %_bonus.c 
+	@if [ $(BONUS_FLAG) -eq 1 ]; then \
+		echo "\033[0;32m compiling libft BONUS object $<...\033[0m" 🚀; \
+		$(CC) $(CFLAGS) $< -c -o $@; \
+	fi
+	
 $(NAME) :: $(OBJECTS)
 	@echo "\n\033[0;32m adding libft object $? to $@ ...\033[0m 🚀\n"
 	@ar rcs $@ $?
@@ -41,12 +47,16 @@ change_flag:
 	$(eval BONUS_FLAG = 1)
 
 bonus: change_flag $(NAME)
+
+test:
+	echo YAHOO
 	
 $(NAME) :: $(OBJECTS_BONUS)
 	@if [ $(BONUS_FLAG) -eq 1 ]; then \
 		echo "\n\033[0;32m adding libft objects bonus $? to $@ ...\033[0m" 🚀; \
 		ar rcs $@ $?; \
 	fi
+	$(MAKE) test
 
 clean:
 	@echo " cleanning libft objects 🧻"

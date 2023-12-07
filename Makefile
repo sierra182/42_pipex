@@ -35,7 +35,6 @@ $(BONUS_DIR)/%.o : $(BONUS_DIR)/%.c $(LDFLAGS) $(HEADERS_BONUS)
 	@echo "\033[0;32m compiling push_swap object bonus $<...\033[0m" 🚀
 	@$(CC) $(CFLAGS) $(CFLAGS_BONUS) $< -c -o $@	
 
-
 all : intro ft_printf $(NAME) emoticon		
 
 l :ft_printf $(NAME) emoticon		
@@ -67,7 +66,8 @@ intro:
 	@cat mfile_design	
 
 ft_printf: emoticon
-	@$(MAKE) -s -C $(FT_PRINTF_DIR) 
+	@$(MAKE) -s -C $(LIBFT_DIR) bonus 
+	$(MAKE) -s -C $(FT_PRINTF_DIR) 
 
 emoticon:
 	@echo "\n 💗 😀 😃 😍\n"
@@ -96,4 +96,4 @@ fclean :
 	@$(MAKE) -C $(FT_PRINTF_DIR) fclean -s
 	@echo ""
 
-re: fclean ft_printf $(NAME)
+re: fclean l

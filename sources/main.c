@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: svidot <svidot@student.42.fr>              +#+  +:+       +#+        */
+/*   By: seblin <seblin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/06 11:14:52 by svidot            #+#    #+#             */
-/*   Updated: 2023/12/07 15:36:19 by svidot           ###   ########.fr       */
+/*   Updated: 2023/12/07 19:32:58 by seblin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,6 @@
 #include <errno.h>
 #include <sys/wait.h>
 #include <stdlib.h>
-
 
 void	set_filepaths(int argc, char **argv[], char *filepaths[])
 {
@@ -38,7 +37,7 @@ void	set_cmd(char **cmd_arr, char *argv[])
 	ft_printf("filepath2:%d\n", n_cmd);
 }
 
-void	child_me(pid_t pid, int pipefd[], char *envp[])
+void	child_area(pid_t pid, int pipefd[], char *envp[])
 {
 	ft_printf("je suis ton fils, mon nom est: %d\n", pid);
 	ft_putstr_fd("la reponse est la quelque part, elle te cherche aussi\n", pipefd[1]);
