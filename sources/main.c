@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: seblin <seblin@student.42.fr>              +#+  +:+       +#+        */
+/*   By: svidot <svidot@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/06 11:14:52 by svidot            #+#    #+#             */
-/*   Updated: 2023/12/07 19:32:58 by seblin           ###   ########.fr       */
+/*   Updated: 2023/12/08 11:55:40 by svidot           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,14 +37,66 @@ void	set_cmd(char **cmd_arr, char *argv[])
 	ft_printf("filepath2:%d\n", n_cmd);
 }
 
-void	child_area(pid_t pid, int pipefd[], char *envp[])
+int	*child_me(int pipefd[], int new_pipefd[])
 {
-	ft_printf("je suis ton fils, mon nom est: %d\n", pid);
-	ft_putstr_fd("la reponse est la quelque part, elle te cherche aussi\n", pipefd[1]);
+		
 	close(pipefd[1]);
 	dup2(pipefd[0], STDIN_FILENO);
-	dup2(pipefd[1], STDOUT_FILENO);
 	close(pipefd[0]);
+	if (pipe(new_pipefd) < 0)
+	{
+		perror("pipe");
+		exit(EXIT_FAILURE);
+	}
+	dup2(pipefd[1], STDOUT_FILENO);	
+}
+
+void	nurcery(int argc, char *argv[], char *envp[])
+{
+	pid_t 	pid;
+	int		pipefd[2];
+	int		new_pipefd[2];
+	int		status;	
+	
+	if (pipe(pipefd) < 0)
+	{
+		perror("pipe");
+		exit(EXIT_FAILURE);
+	}
+	ft_putstr_fd("la reponse est la quelque part, elle te cherche aussi\n", pipefd[1]);
+	while (argc-- - 1)
+	{
+		pid = fork();
+		if (pid < 0)
+		{
+			perror("fork");
+			exit(EXIT_FAILURE);	
+		}
+		else if (pid == 0)
+		{
+			child_me(pipefd, new_pipefd);
+			pipefd[0] = new_pipefd[0];	
+			pipefd[1] = new_pipefd[1];
+			execve(*argv, (char *[]) {*argv, NULL}, envp);
+			argv++;
+		}
+		else
+		{	
+			close(pipefd[0]);
+			wait_pid(&status, pid);	
+		}
+	}
+}
+
+void	child_area(pid_t pid, int pipefd[], char *envp[])
+{	
+	ft_printf("je suis ton fils, mon nom est: %d\n", pid);
+	ft_putstr_fd("la reponse est la quelque part, elle te cherche aussi\n", pipefd[1]);
+	
+	dup2(pipefd[0], STDIN_FILENO);
+	//dup2(pipefd[1], STDOUT_FILENO);
+	close(pipefd[0]);
+	//close(pipefd[1]);
 	if (execve("/bin/rev", (char *[]) {"rev", NULL}, envp))
 		perror("error execve");
 	ft_printf("je suis ta soeur: %d\n", pid);
@@ -56,8 +108,8 @@ void	parent_area(pid_t pid, int pipefd[])
 	
 	ft_printf("je suis ton pere, ton nom est: %d\n", pid);
 	
-	// while (read(pipefd[0], &buf, 1))	
-	// 	ft_putchar_fd(buf, 1);		
+	// while (read(pipefd[0], &buf, 1))
+	// ft_putchar_fd(buf, 1);
 	// close(pipefd[0]);
 }
 
@@ -75,7 +127,7 @@ int	main(int argc, char *argv[], char *envp[])
 	ft_printf("filepath1:%s\n", filepaths[0]);
 	ft_printf("filepath2:%s\n", filepaths[1]);	
 	
-	ft_printf("je suis le pere et je vais me forker la face\n");
+	ft_printf("je suis dieu le pere et je vais me forker\n");
 	if (pipe(pipefd) < 0)
 	{
 		perror("pipe");
