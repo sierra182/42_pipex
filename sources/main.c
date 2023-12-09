@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: svidot <svidot@student.42.fr>              +#+  +:+       +#+        */
+/*   By: seblin <seblin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/06 11:14:52 by svidot            #+#    #+#             */
-/*   Updated: 2023/12/09 16:33:25 by svidot           ###   ########.fr       */
+/*   Updated: 2023/12/09 20:28:48 by seblin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,24 +38,62 @@ void	set_cmd(char **cmd_arr, char *argv[])
 }
 
 void	set_pipe_forward(int pipefd_in[], int pipefd_out[])
-{
-			
+{			
 	dup2(pipefd_in[0], STDIN_FILENO);
 	close(pipefd_in[0]);
 	close(pipefd_in[1]);
-
 	dup2(pipefd_out[1], STDOUT_FILENO);	
 	close(pipefd_out[1]);
 	close(pipefd_out[0]);
 }
-
 void	nurcery(int argc, char *argv[], char *envp[], int fd_file[])
+{
+	pid_t 	pid;
+	int		pipefd_in[2];
+	int		pipefd_out[2];
+	char	buf;
+	int 	status;
+	
+	if (pipe(pipefd_in) < 0)                              
+	{
+		perror("pipe");
+		exit(EXIT_FAILURE);
+	}
+	if (pipe(pipefd_out) < 0)
+	{
+		perror("pipe");
+		exit(EXIT_FAILURE);
+	}
+	pipefd_in[0] = fd_file[0];
+	while (--argc - 2)
+	{		
+		pid = fork();		
+		if (pid == 0)
+		{
+			set_pipe_forward(pipefd_in, pipefd_out);							
+			execve("/bin/rev", (char *[]) {"rev", NULL}, envp);  
+		}
+		else
+		{
+			close(pipefd_in[0]);
+			pipefd_in[0] = 
+			close(pipefd_out[1]);      		
+		}
+	}
+	//wait(&status);
+	close(pipefd_in[0]);
+	close(pipefd_out[1]);
+	while (read(pipefd_out[0], &buf, 1))
+		ft_putchar_fd(buf, 1);
+	close(pipefd_out[0]);	
+}
+
+void	nurcery2(int argc, char *argv[], char *envp[], int fd_file[])
 {
 	pid_t 	pid;
 	int		pipefd_1[2];
 	int		pipefd_2[2];
 	int		pipefd_3[2];
-	int		status;	
 	
 	if (pipe(pipefd_1) < 0)                              // 1er pipe
 	{
