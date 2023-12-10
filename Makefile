@@ -18,18 +18,22 @@ SRC_DIR = sources
 CC = cc
 CFLAGS = -I$(HEADERS_DIR) -I$(LIBFT_DIR) -I$(FT_PRINTF_DIR) #-Wall -Wextra -Werror
 LDFLAGS = $(FT_PRINTF_DIR)/libftprintf.a
-
 SOURCES = $(SRC_DIR)/main.c 
 OBJECTS = $(SOURCES:.c=.o)
 NAME = pipex
 
+BONUS_DIR = bonus
+GNL_DIR = $(BONUS_DIR)/gnl
+CFLAGS_BONUS = -I$(GNL_DIR)
+SOURCES_BONUS = $(GNL_DIR)/get_next_line.c  $(GNL_DIR)/get_next_line_utils.c
+OBJECTS_BONUS = $(SOURCES_BONUS:.c=.o)
 HEADERS = $(FT_PRINTF_DIR)/ft_printf.h $(LIBFT_DIR)/libft.h
 
 .PHONY : all ft_printf bonus clean fclean re intro l newline emoticon
 
 $(SRC_DIR)/%.o : $(SRC_DIR)/%.c $(LDFLAGS) $(HEADERS)
 	@echo "\033[0;32m compiling $(NAME) object $<...\033[0m" 🚀
-	@$(CC) $(CFLAGS) $< -c -o $@
+	@$(CC) $(CFLAGS) $(CFLAGS_BONUS) $< -c -o $@
 	
 $(BONUS_DIR)/%.o : $(BONUS_DIR)/%.c $(LDFLAGS) $(HEADERS_BONUS)
 	@echo "\033[0;32m compiling push_swap object bonus $<...\033[0m" 🚀
@@ -41,7 +45,7 @@ l :ft_printf $(NAME) emoticon
 
 $(NAME) : $(OBJECTS) 
 	@echo "\n\033[0;32m linking $(NAME) objects with $(LDFLAGS)...\033[0m 🚀\n"
-	@$(CC) $(OBJECTS) $(LDFLAGS) -o $@
+	@$(CC) $(OBJECTS) $(OBJECTS_BONUS) $(LDFLAGS) -o $@
 	
 intro:
 	clear

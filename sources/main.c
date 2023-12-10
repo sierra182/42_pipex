@@ -6,7 +6,7 @@
 /*   By: seblin <seblin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/06 11:14:52 by svidot            #+#    #+#             */
-/*   Updated: 2023/12/10 03:57:28 by seblin           ###   ########.fr       */
+/*   Updated: 2023/12/10 18:50:42 by seblin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,10 +20,18 @@
 #include <sys/wait.h>
 #include <stdlib.h>
 
+#include "get_next_line.h"
+
 void	set_filepaths(int argc, char **argv[], char *filepaths[])
 {
 	filepaths[0] = *(++*argv);
 	filepaths[1] = (*argv)[argc - 2];
+}
+
+void	set_filepaths_hd(int argc, char **argv[], char *filepaths[])
+{
+	filepaths[0] = *(++*argv);
+	filepaths[1] = (*argv)[argc - 3];
 }
 
 void	set_cmd(char **cmd_arr, char *argv[])
@@ -46,7 +54,33 @@ void	set_pipe_forward(int pipefd_in[], int pipefd_out[])
 	close(pipefd_out[1]);
 	close(pipefd_out[0]);
 }
-void	nurcery(int argc, char *argv[], char *envp[], int fd_file[])
+
+void	here_doc_handle(int *argc, char **argv[], int pipe_fd[])
+{
+	char	*h_doc;
+	char	*line;
+	
+	h_doc = **argv;
+	while (1)
+	{
+		line = get_next_line(0);
+		if (line > 0)
+		{
+			if (ft_strncmp(line, h_doc, ft_strlen(h_doc) - 1))
+			{				
+				ft_putstr_fd(line, pipe_fd[1]);	
+			}
+			else
+			{				
+				break;
+			}
+		}		
+	}	
+	close(pipe_fd[1]);	
+	(*argv)++;
+	*argc  -= 2;	
+}
+void	nurcery(int argc, char *argv[], char *envp[], int fd_file[], int flag)
 {
 	pid_t 	pid;
 	int		pipefd_in[2];
@@ -64,17 +98,24 @@ void	nurcery(int argc, char *argv[], char *envp[], int fd_file[])
 		perror("pipe");
 		exit(EXIT_FAILURE);
 	}
-	pipefd_in[0] = fd_file[0];
+	if (!flag)
+		pipefd_in[0] = fd_file[0];
+	if (flag)
+		here_doc_handle(&argc, &argv, pipefd_in);
+
+	//ft_printf("argverrine %s\n", *argv);
 	while (--argc - 2)
-	{		ft_printf("he\n");
+	{//	ft_printf("he argv\n");
+		argv++; 
 		pid = fork();		
 		if (pid == 0)
 		{
+			//ft_printf("valeur arg: %s\n", *argv);
 			set_pipe_forward(pipefd_in, pipefd_out);							
-			execve("/bin/rev", (char *[]) {"rev", NULL}, envp);  
+			execve(*argv, (char *[]) {*argv, NULL}, envp);  
 		}
 		else
-		{
+		{			
 			close(pipefd_in[1]); 
 			close(pipefd_in[0]);
 			pipefd_in[0] = pipefd_out[0];
@@ -90,7 +131,7 @@ void	nurcery(int argc, char *argv[], char *envp[], int fd_file[])
 	close(pipefd_in[1]);
 	close(pipefd_out[1]);
 	while (read(pipefd_in[0], &buf, 1))
-		ft_putchar_fd(buf, 1);
+		ft_putchar_fd(buf, fd_file[1]);
 	close(pipefd_in[0]);	
 }
 
@@ -177,22 +218,40 @@ void	parent_area(pid_t pid, int pipefd[])
 	// close(pipefd[0]);
 }
 
+int	parse_cmd(char *argv[], char *envp[])
+{
+	
+}
+
 int	main(int argc, char *argv[], char *envp[])
 {
 	char	*filepaths[2];
 	int		fd_file[2];
 	char	**cmd_arr;
 	int		pipefd[2];
-		
+	int		flag;
+
+	flag = 0;
+	if (!ft_strcmp(*(argv + 1), "here_doc"))
+	{
+		argv++;
+		flag = 1;
+	}	
 	if (argc <= 4)
 		return (1);
-	set_filepaths(argc, &argv, filepaths);
-	ft_printf("argv:%s\n", *argv);
-	ft_printf("filepath1:%s\n", filepaths[0]);
-	ft_printf("filepath2:%s\n", filepaths[1]);	
+	if (!flag)
+		set_filepaths(argc, &argv, filepaths);
+	else 
+		set_filepaths_hd(argc, &argv, filepaths);
+	//ft_printf("argv:%s\n", *argv);
+	//ft_printf("filepath1:%s\n", filepaths[0]);
+//	ft_printf("filepath2:%s\n", filepaths[1]);	
 	ft_printf("je suis dieu le pere et je vais me forker\n");
 	fd_file[0] = open(filepaths[0], O_RDONLY);
-	fd_file[1] = open(filepaths[1], O_WRONLY | O_CREAT, 400);
+	if (!flag)
+		fd_file[1] = open(filepaths[1], O_WRONLY | O_CREAT | O_TRUNC, 400);
+	else
+		fd_file[1] = open(filepaths[1], O_WRONLY | O_CREAT | O_APPEND, 400);
 	if (pipe(pipefd) < 0)
 	{
 		perror("pipe");
@@ -205,7 +264,7 @@ int	main(int argc, char *argv[], char *envp[])
 		return (1);		
 	}
 	else if (pid == 0)
-		nurcery(argc, argv, envp, fd_file);
+		nurcery(argc, argv, envp, fd_file, flag);
 		//child_area(pid, pipefd, envp);
 	else
 	{
