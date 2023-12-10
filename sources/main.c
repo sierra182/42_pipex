@@ -6,7 +6,7 @@
 /*   By: seblin <seblin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/06 11:14:52 by svidot            #+#    #+#             */
-/*   Updated: 2023/12/09 20:28:48 by seblin           ###   ########.fr       */
+/*   Updated: 2023/12/10 03:57:28 by seblin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,7 +66,7 @@ void	nurcery(int argc, char *argv[], char *envp[], int fd_file[])
 	}
 	pipefd_in[0] = fd_file[0];
 	while (--argc - 2)
-	{		
+	{		ft_printf("he\n");
 		pid = fork();		
 		if (pid == 0)
 		{
@@ -75,17 +75,23 @@ void	nurcery(int argc, char *argv[], char *envp[], int fd_file[])
 		}
 		else
 		{
+			close(pipefd_in[1]); 
 			close(pipefd_in[0]);
-			pipefd_in[0] = 
-			close(pipefd_out[1]);      		
+			pipefd_in[0] = pipefd_out[0];
+			pipefd_in[1] = pipefd_out[1];
+			if (pipe(pipefd_out) < 0)
+			{
+				perror("pipe");
+				exit(EXIT_FAILURE);
+			}     		
 		}
 	}
 	//wait(&status);
-	close(pipefd_in[0]);
+	close(pipefd_in[1]);
 	close(pipefd_out[1]);
-	while (read(pipefd_out[0], &buf, 1))
+	while (read(pipefd_in[0], &buf, 1))
 		ft_putchar_fd(buf, 1);
-	close(pipefd_out[0]);	
+	close(pipefd_in[0]);	
 }
 
 void	nurcery2(int argc, char *argv[], char *envp[], int fd_file[])
