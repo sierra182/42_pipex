@@ -6,7 +6,7 @@
 /*   By: svidot <svidot@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/06 11:14:52 by svidot            #+#    #+#             */
-/*   Updated: 2023/12/11 16:41:07 by svidot           ###   ########.fr       */
+/*   Updated: 2023/12/11 16:45:48 by svidot           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,7 +75,7 @@ void	here_doc_handle(int *argc, char **argv[], int pipe_fd[])
 	close(pipe_fd[1]);
 }
 
-void	join_simplecote(char **split_arg)
+void	join_simplequote(char **split_arg)
 {
 	char	*start;
 	char	*end;
@@ -110,7 +110,7 @@ char	**parse_cmd(char *argv[], char *envp[])
 		}
 	}
 	split_arg = ft_split(*argv, ' ');
-	join_simplecote(split_arg);
+	join_simplequote(split_arg);
 	if (env_find)
 	{
 		env_find += ft_strlen(env_to_find);
