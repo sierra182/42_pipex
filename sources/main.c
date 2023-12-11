@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: seblin <seblin@student.42.fr>              +#+  +:+       +#+        */
+/*   By: svidot <svidot@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/06 11:14:52 by svidot            #+#    #+#             */
-/*   Updated: 2023/12/10 18:50:42 by seblin           ###   ########.fr       */
+/*   Updated: 2023/12/11 10:54:44 by svidot           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,9 +76,8 @@ void	here_doc_handle(int *argc, char **argv[], int pipe_fd[])
 			}
 		}		
 	}	
-	close(pipe_fd[1]);	
-	(*argv)++;
-	*argc  -= 2;	
+	close(pipe_fd[1]);
+	(*argc)--;	
 }
 void	nurcery(int argc, char *argv[], char *envp[], int fd_file[], int flag)
 {
@@ -103,9 +102,9 @@ void	nurcery(int argc, char *argv[], char *envp[], int fd_file[], int flag)
 	if (flag)
 		here_doc_handle(&argc, &argv, pipefd_in);
 
-	//ft_printf("argverrine %s\n", *argv);
+	ft_printf("argverrine %s\n", *argv);
 	while (--argc - 2)
-	{//	ft_printf("he argv\n");
+	{	ft_printf("he argv\n");
 		argv++; 
 		pid = fork();		
 		if (pid == 0)
@@ -220,7 +219,7 @@ void	parent_area(pid_t pid, int pipefd[])
 
 int	parse_cmd(char *argv[], char *envp[])
 {
-	
+	return 1;
 }
 
 int	main(int argc, char *argv[], char *envp[])
@@ -235,23 +234,30 @@ int	main(int argc, char *argv[], char *envp[])
 	if (!ft_strcmp(*(argv + 1), "here_doc"))
 	{
 		argv++;
+		argc--;
 		flag = 1;
-	}	
+	}
 	if (argc <= 4)
 		return (1);
-	if (!flag)
-		set_filepaths(argc, &argv, filepaths);
-	else 
-		set_filepaths_hd(argc, &argv, filepaths);
-	//ft_printf("argv:%s\n", *argv);
-	//ft_printf("filepath1:%s\n", filepaths[0]);
-//	ft_printf("filepath2:%s\n", filepaths[1]);	
+	//if (!flag)
+	set_filepaths(argc, &argv, filepaths);
+	//else
+	//	set_filepaths_hd(argc, &argv, filepaths);
+	ft_printf("argv:%s\n", *argv);
+	ft_printf("filepath1:%s\n", filepaths[0]);
+	ft_printf("filepath2:%s\n", filepaths[1]);	
 	ft_printf("je suis dieu le pere et je vais me forker\n");
-	fd_file[0] = open(filepaths[0], O_RDONLY);
+		
 	if (!flag)
+	{			
+		fd_file[0] = open(filepaths[0], O_RDONLY);
 		fd_file[1] = open(filepaths[1], O_WRONLY | O_CREAT | O_TRUNC, 400);
+	}	
 	else
+	{
+		fd_file[0] = 0;
 		fd_file[1] = open(filepaths[1], O_WRONLY | O_CREAT | O_APPEND, 400);
+	}
 	if (pipe(pipefd) < 0)
 	{
 		perror("pipe");
