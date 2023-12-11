@@ -6,7 +6,7 @@
 /*   By: svidot <svidot@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/06 11:14:52 by svidot            #+#    #+#             */
-/*   Updated: 2023/12/11 11:50:07 by svidot           ###   ########.fr       */
+/*   Updated: 2023/12/11 16:41:07 by svidot           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,14 +75,55 @@ void	here_doc_handle(int *argc, char **argv[], int pipe_fd[])
 	close(pipe_fd[1]);
 }
 
+void	join_simplecote(char **split_arg)
+{
+	char	*start;
+	char	*end;
+
+	while (*split_arg)
+	{
+		if (**split_arg == '\'')
+			start = ft_delchar(*split_arg);
+		if (*(*split_arg + ft_strlen(*split_arg)) == '\'')		
+			end = ft_delchar(*split_arg);
+		split_arg++;
+	}	
+}
+
 char	**parse_cmd(char *argv[], char *envp[])
 {
-	char ** split;
-
-
-		split = ft_split(*argv, ' ');
-
-	return split;
+	char	**split_arg;
+	char	**split_colon;
+	char	*env_to_find;
+	char	*env_find;
+	char	*cmd;
+	
+	env_to_find = "PATH=";
+	env_find = NULL;
+	while (*envp)
+	{
+		if (!ft_strncmp(*envp++, env_to_find, ft_strlen(env_to_find)))
+		{
+			env_find = *--envp;
+				//ft_printf("env find :%s\n", env_find);
+			break ;
+		}
+	}
+	split_arg = ft_split(*argv, ' ');
+	join_simplecote(split_arg);
+	if (env_find)
+	{
+		env_find += ft_strlen(env_to_find);
+		split_colon = ft_split(env_find, ':');
+		while (*split_colon)
+		{
+			cmd =   ft_strjoin(ft_strjoin(*split_colon++, "/"), *split_arg);
+			//ft_printf("strjoin :%s\n", cmd);
+			if (!access(cmd, X_OK))
+				split_arg[0] = cmd;
+		}
+	}
+	return (split_arg);
 }
 
 void	nurcery(int argc, char *argv[], char *envp[], int fd_file[], int flag)
