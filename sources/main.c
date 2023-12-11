@@ -6,7 +6,7 @@
 /*   By: svidot <svidot@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/06 11:14:52 by svidot            #+#    #+#             */
-/*   Updated: 2023/12/11 16:45:48 by svidot           ###   ########.fr       */
+/*   Updated: 2023/12/11 17:39:43 by svidot           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -80,13 +80,30 @@ void	join_simplequote(char **split_arg)
 	char	*start;
 	char	*end;
 
+	start = NULL;
+	end = NULL;	
 	while (*split_arg)
 	{
 		if (**split_arg == '\'')
 			start = ft_delchar(*split_arg);
-		if (*(*split_arg + ft_strlen(*split_arg)) == '\'')		
-			end = ft_delchar(*split_arg);
+		if (*(*split_arg + ft_strlen(*split_arg) - 1) == '\'')
+		{	
+			end = *split_arg;		
+			ft_delchar(*split_arg + ft_strlen(*split_arg) - 1);			
+		}		
 		split_arg++;
+	}
+	if (start && end)
+	{
+		ft_printf("we have champions, start : %s, end : %s\n", start, end);
+		char *temp;
+		temp = start;
+		while (temp++ <= end)
+		{
+			start = ft_strjoin(start, temp);
+		}
+		split_arg[]
+		ft_printf("we have ONE champions, : %s\n", start);
 	}	
 }
 
