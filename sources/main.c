@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: svidot <svidot@student.42.fr>              +#+  +:+       +#+        */
+/*   By: seblin <seblin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/06 11:14:52 by svidot            #+#    #+#             */
-/*   Updated: 2023/12/11 17:39:43 by svidot           ###   ########.fr       */
+/*   Updated: 2023/12/11 23:09:17 by seblin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,7 +79,9 @@ void	join_simplequote(char **split_arg)
 {
 	char	*start;
 	char	*end;
-
+	char	**split_arg_save;
+	
+	split_arg_save = split_arg;
 	start = NULL;
 	end = NULL;	
 	while (*split_arg)
@@ -97,12 +99,25 @@ void	join_simplequote(char **split_arg)
 	{
 		ft_printf("we have champions, start : %s, end : %s\n", start, end);
 		char *temp;
+		char *res;
 		temp = start;
 		while (temp++ <= end)
 		{
-			start = ft_strjoin(start, temp);
+			res = ft_strjoin(start, temp);
 		}
-		split_arg[]
+		while (*split_arg_save)
+		{
+			if (*split_arg_save == start)
+			{
+				*split_arg_save = res;
+				while (*split_arg_save++ != end)
+				{
+					*split_arg_save = *(split_arg_save + 1);
+				}
+			}
+			split_arg_save++;
+		}
+		
 		ft_printf("we have ONE champions, : %s\n", start);
 	}	
 }
