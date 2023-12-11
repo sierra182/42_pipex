@@ -6,7 +6,7 @@
 /*   By: svidot <svidot@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/06 11:14:52 by svidot            #+#    #+#             */
-/*   Updated: 2023/12/11 10:54:44 by svidot           ###   ########.fr       */
+/*   Updated: 2023/12/11 11:50:07 by svidot           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,10 +22,10 @@
 
 #include "get_next_line.h"
 
-void	set_filepaths(int argc, char **argv[], char *filepaths[])
+void	set_filepaths(int *argc, char **argv[], char *filepaths[])
 {
 	filepaths[0] = *(++*argv);
-	filepaths[1] = (*argv)[argc - 2];
+	filepaths[1] = (*argv)[--*argc - 1];
 }
 
 void	set_filepaths_hd(int argc, char **argv[], char *filepaths[])
@@ -59,26 +59,32 @@ void	here_doc_handle(int *argc, char **argv[], int pipe_fd[])
 {
 	char	*h_doc;
 	char	*line;
-	
+
 	h_doc = **argv;
 	while (1)
 	{
 		line = get_next_line(0);
 		if (line > 0)
-		{
+		{			
 			if (ft_strncmp(line, h_doc, ft_strlen(h_doc) - 1))
-			{				
-				ft_putstr_fd(line, pipe_fd[1]);	
-			}
+				ft_putstr_fd(line, pipe_fd[1]);
 			else
-			{				
-				break;
-			}
-		}		
-	}	
+				break ;
+		}
+	}
 	close(pipe_fd[1]);
-	(*argc)--;	
 }
+
+char	**parse_cmd(char *argv[], char *envp[])
+{
+	char ** split;
+
+
+		split = ft_split(*argv, ' ');
+
+	return split;
+}
+
 void	nurcery(int argc, char *argv[], char *envp[], int fd_file[], int flag)
 {
 	pid_t 	pid;
@@ -102,16 +108,15 @@ void	nurcery(int argc, char *argv[], char *envp[], int fd_file[], int flag)
 	if (flag)
 		here_doc_handle(&argc, &argv, pipefd_in);
 
-	ft_printf("argverrine %s\n", *argv);
-	while (--argc - 2)
-	{	ft_printf("he argv\n");
-		argv++; 
+	ft_printf("argverrine %s, argc %d\n", *argv, argc);
+	while(*(++argv + 1))
+	{	
 		pid = fork();		
 		if (pid == 0)
-		{
-			//ft_printf("valeur arg: %s\n", *argv);
+		{	
+			char **split = parse_cmd(argv, envp);		
 			set_pipe_forward(pipefd_in, pipefd_out);							
-			execve(*argv, (char *[]) {*argv, NULL}, envp);  
+			execve(split[0], split, envp);  
 		}
 		else
 		{			
@@ -133,6 +138,7 @@ void	nurcery(int argc, char *argv[], char *envp[], int fd_file[], int flag)
 		ft_putchar_fd(buf, fd_file[1]);
 	close(pipefd_in[0]);	
 }
+
 
 void	nurcery2(int argc, char *argv[], char *envp[], int fd_file[])
 {
@@ -217,10 +223,7 @@ void	parent_area(pid_t pid, int pipefd[])
 	// close(pipefd[0]);
 }
 
-int	parse_cmd(char *argv[], char *envp[])
-{
-	return 1;
-}
+
 
 int	main(int argc, char *argv[], char *envp[])
 {
@@ -240,7 +243,7 @@ int	main(int argc, char *argv[], char *envp[])
 	if (argc <= 4)
 		return (1);
 	//if (!flag)
-	set_filepaths(argc, &argv, filepaths);
+	set_filepaths(&argc, &argv, filepaths);
 	//else
 	//	set_filepaths_hd(argc, &argv, filepaths);
 	ft_printf("argv:%s\n", *argv);
