@@ -6,7 +6,7 @@
 /*   By: svidot <svidot@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/06 11:14:52 by svidot            #+#    #+#             */
-/*   Updated: 2023/12/12 12:12:08 by svidot           ###   ########.fr       */
+/*   Updated: 2023/12/12 12:25:05 by svidot           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -102,6 +102,58 @@ void	ft_addstr(char **arr, char *s)
 }
 
 void	join_simplequote(char **split_arg)
+{
+	char	**start;
+	char	**end;
+	char	**split_arg_save;
+	
+	split_arg_save = split_arg;
+	start = NULL;
+	end = NULL;	
+	while (*split_arg)
+	{
+		if (**split_arg == '\'')
+		{			
+			ft_delchar(*split_arg);
+			start = split_arg;
+		}
+		if (*(*split_arg + ft_strlen(*split_arg) - 1) == '\'')
+		{	
+			ft_delchar(*split_arg + ft_strlen(*split_arg) - 1);			
+			end = split_arg;		
+		}		
+		split_arg++;
+	}
+	if (start && end)
+	{		
+		char **temp;
+		char *res;
+		temp = start;
+		res = *start;
+		int j = 1;
+		while (*++temp && *temp <= *end)
+		{						
+			res = ft_strjoin(ft_strjoin(res, " "), *temp);
+			j++;
+		}		
+		split_arg = split_arg_save;
+		while (*split_arg)
+		{
+			while (*split_arg == *start && j--)
+			{			
+				ft_delstr(split_arg);
+			}			
+			if (j == -1)
+			{ 				
+				ft_addstr(split_arg, res);
+				break;
+			}
+			split_arg++;
+		}	
+	}	
+}
+
+void	join_simplequote2(char **split_arg)
 {
 	char	**start;
 	char	**end;
