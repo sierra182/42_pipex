@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: seblin <seblin@student.42.fr>              +#+  +:+       +#+        */
+/*   By: svidot <svidot@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/06 11:14:52 by svidot            #+#    #+#             */
-/*   Updated: 2023/12/12 08:05:06 by seblin           ###   ########.fr       */
+/*   Updated: 2023/12/12 11:11:40 by svidot           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,10 +75,35 @@ void	here_doc_handle(int *argc, char **argv[], int pipe_fd[])
 	close(pipe_fd[1]);
 }
 
+void	ft_delstr(char **arr)
+{
+	while (*arr)
+	{
+		*arr = *(arr + 1);
+		arr++;
+	}	
+}
+
+void	ft_addstr(char **arr, char *s)
+{
+	char	*temp;
+	char	*temp2;
+	
+	temp = s;
+	while (*arr)
+	{
+		temp2 = *arr;
+		*arr = temp;
+		temp = temp2;
+		arr++;
+	}
+	*arr = temp;
+}
+
 void	join_simplequote(char **split_arg)
 {
-	char	*start;
-	char	*end;
+	char	**start;
+	char	**end;
 	char	**split_arg_save;
 	
 	split_arg_save = split_arg;
@@ -87,41 +112,79 @@ void	join_simplequote(char **split_arg)
 	while (*split_arg)
 	{
 		if (**split_arg == '\'')
-			start = ft_delchar(*split_arg);
+		{			
+			ft_delchar(*split_arg);
+			start = split_arg;
+		}
 		if (*(*split_arg + ft_strlen(*split_arg) - 1) == '\'')
 		{	
-			end = *split_arg;		
 			ft_delchar(*split_arg + ft_strlen(*split_arg) - 1);			
+			end = split_arg;		
 		}		
 		split_arg++;
 	}
 	if (start && end)
 	{
-		ft_printf("we have champions, start : %s, end : %s\n", start, end);
-		char *temp;
+		ft_printf("we have champions, start : %s, end : %s\n", *start, *end);
+		char **temp;
 		char *res;
 		temp = start;
-		while (temp <= end)
-		{
-			
-			temp += ft_strlen(temp) + 1;
-			res = ft_strjoin(ft_strjoin(start, " "), temp);
+		res = *start;
+		int j = 1;
+		while (*++temp && *temp <= *end)
+		{			
+			ft_printf("we have a problem here: temp : %s\n", *temp);
+			//temp += ft_strlen(temp) + 1;		
+			res = ft_strjoin(ft_strjoin(res, " "), *temp);
+			j++;
 		}
-		ft_printf("bla, : %s\n", res);
-		// while (*split_arg_save)
-		// {
-		// 	if (*split_arg_save == start)
-		// 	{
-		// 		*split_arg_save = res;
-		// 		while (*split_arg_save++ != end)
-		// 		{
-		// 			*split_arg_save = *(split_arg_save + 1);
-		// 		}
-		// 	}
-		// 	split_arg_save++;
-		// }
+		ft_printf("bla, : -%s-\n", res);
 		
-		ft_printf("we have ONE champions, : %s\n", start);
+		int i = 0;
+		while (split_arg_save[i])
+		{
+			ft_printf("split arg save, : -%s-\n", split_arg_save[i++]);			
+		}
+		ft_printf("\n");
+		split_arg = split_arg_save;
+		while (*split_arg)
+		{
+			while (*split_arg == *start && j--)
+			{
+				ft_printf("houhou -%s-\n", *split_arg);
+				ft_delstr(split_arg);
+				//end--;
+				ft_printf("apres -%s- start -%s-, end -%s-\n", *split_arg, *start, *end);
+				// *split_arg_save = res;
+				// while (*split_arg_save++ != end)
+				// {
+				// 	*split_arg_save = *(split_arg_save + 1);
+				// }
+			}
+				i = 0;
+				while (split_arg[i])
+				{
+					ft_printf("split arg lameme, : -%s-\n", split_arg[i++]);			
+				}
+			if (j == -1)
+			{ ft_printf("j egal zero\n");				
+				i = 0;
+				while (split_arg[i])
+				{
+					ft_printf("split arg lamemeYEEE, : -%s-\n", split_arg[i++]);			
+				}
+				//split_arg--;
+				ft_addstr(split_arg, res);
+				break;
+			}
+			split_arg++;
+		}
+		i = 0;
+		while (split_arg_save[i])
+		{
+			ft_printf("split arg save, : -%s-\n", split_arg_save[i++]);			
+		}
+		//ft_printf("we have ONE champions, : %s\n", start);
 	}	
 }
 
