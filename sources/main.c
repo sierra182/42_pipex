@@ -6,7 +6,7 @@
 /*   By: svidot <svidot@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/06 11:14:52 by svidot            #+#    #+#             */
-/*   Updated: 2023/12/12 12:25:05 by svidot           ###   ########.fr       */
+/*   Updated: 2023/12/13 17:14:10 by svidot           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,11 +22,7 @@
 
 #include "get_next_line.h"
 
-void	set_filepaths(int *argc, char **argv[], char *filepaths[])
-{
-	filepaths[0] = *(++*argv);
-	filepaths[1] = (*argv)[--*argc - 1];
-}
+
 
 void	set_filepaths_hd(int argc, char **argv[], char *filepaths[])
 {
@@ -247,8 +243,7 @@ char	**parse_cmd(char *argv[], char *envp[])
 	{
 		if (!ft_strncmp(*envp++, env_to_find, ft_strlen(env_to_find)))
 		{
-			env_find = *--envp;
-				//ft_printf("env find :%s\n", env_find);
+			env_find = *--envp;			
 			break ;
 		}
 	}
@@ -260,8 +255,7 @@ char	**parse_cmd(char *argv[], char *envp[])
 		split_colon = ft_split(env_find, ':');
 		while (*split_colon)
 		{
-			cmd =   ft_strjoin(ft_strjoin(*split_colon++, "/"), *split_arg);
-			//ft_printf("strjoin :%s\n", cmd);
+			cmd =   ft_strjoin(ft_strjoin(*split_colon++, "/"), *split_arg);		
 			if (!access(cmd, X_OK))
 				split_arg[0] = cmd;
 		}
@@ -291,8 +285,6 @@ void	nurcery(int argc, char *argv[], char *envp[], int fd_file[], int flag)
 		pipefd_in[0] = fd_file[0];
 	if (flag)
 		here_doc_handle(&argc, &argv, pipefd_in);
-
-	//ft_printf("argverrine %s, argc %d\n", *argv, argc);
 	while(*(++argv + 1))
 	{	
 		pid = fork();		
@@ -315,7 +307,6 @@ void	nurcery(int argc, char *argv[], char *envp[], int fd_file[], int flag)
 			}     		
 		}
 	}
-	//wait(&status);
 	close(pipefd_in[1]);
 	close(pipefd_out[1]);
 	while (read(pipefd_in[0], &buf, 1))
@@ -407,9 +398,121 @@ void	parent_area(pid_t pid, int pipefd[])
 	// close(pipefd[0]);
 }
 
+void	set_filepaths(int *argc, char **argv[], char *filepaths[])
+{
+	filepaths[0] = *(++*argv);
+	filepaths[1] = (*argv)[--*argc - 1];
+}
 
+void	file_acces_handle2(int flag, char *filepaths[], int fd_file[])
+{
+	char	*error_str;
+		//ft_printf("where is my seg fault\n");	
+	error_str = "";
+	if (!flag)
+	{
+		if (access(filepaths[0], F_OK))		
+			error_str = ft_strjoin(error_str, ft_strjoin((ft_strjoin(ft_strjoin(strerror(errno), ": "), filepaths[0])), "\n"));
+		
+		else if (access(filepaths[0], R_OK))		
+			error_str = ft_strjoin(error_str, ft_strjoin((ft_strjoin(ft_strjoin(strerror(errno), ": "), filepaths[0])), "\n"));
+		
+		fd_file[0] = open(filepaths[0], O_RDONLY);
+		if (!access(filepaths[1], F_OK) && access(filepaths[1], W_OK))	
+			error_str = ft_strjoin(error_str, ft_strjoin((ft_strjoin(ft_strjoin(strerror(errno), ": "), filepaths[1])), "\n"));
+		fd_file[1] = open(filepaths[1], O_WRONLY | O_CREAT | O_TRUNC, 400);
+	}
+	else
+	{
+		fd_file[0] = -1;
+		if (!access(filepaths[1], F_OK) && access(filepaths[1], W_OK))	
+			error_str = ft_strjoin(error_str, ft_strjoin((ft_strjoin(ft_strjoin(strerror(errno), ": "), filepaths[1])), "\n"));
+		fd_file[1] = open(filepaths[1], O_WRONLY | O_CREAT | O_APPEND, 400);
+	}
+	if (*error_str)
+		return (ft_putstr_fd(error_str, STDERR_FILENO), exit(EXIT_FAILURE));		
+}
+
+void	free_error_str(char *s)
+{
+	free(s);
+}
+
+void	close_fd(int fd_file[])
+{
+	if (fd_file[0] >= 0)
+		close(fd_file[0]);
+	if (fd_file[1] >= 0)	
+		close(fd_file[1]);
+}
+void	get_fdio(int flag, char *filepaths[], int fd_file[])
+{
+	char	*error_str;
+		
+	error_str = "";
+	if (!flag)
+	{	
+		fd_file[0] = open(filepaths[0], O_RDONLY);
+		if (fd_file[0] < 0)			
+			error_str = ft_strjoin(error_str, ft_strjoin((ft_strjoin(ft_strjoin(strerror(errno), ": "), filepaths[0])), "\n"));		
+		fd_file[1] = open(filepaths[1], O_WRONLY | O_CREAT | O_TRUNC, 400);
+		if (fd_file[1] < 0)			
+			error_str = ft_strjoin(error_str, ft_strjoin((ft_strjoin(ft_strjoin(strerror(errno), ": "), filepaths[1])), "\n"));	
+	}
+	else
+	{
+		fd_file[0] = -1;
+		fd_file[1] = open(filepaths[1], O_WRONLY | O_CREAT | O_APPEND, 400);
+		if (fd_file[1] < 0)		
+			error_str = ft_strjoin(error_str, ft_strjoin((ft_strjoin(ft_strjoin(strerror(errno), ": "), filepaths[1])), "\n"));				
+	}
+	if (*error_str)
+		return (ft_putstr_fd(error_str, STDERR_FILENO), free_error_str(error_str), close_fd(fd_file), exit(EXIT_FAILURE));	
+}
 
 int	main(int argc, char *argv[], char *envp[])
+{
+	char	*filepaths[2];
+	int		fd_file[2];	
+	int		pipefd[2];
+	int		flag;
+
+	flag = 0;
+	if (!ft_strcmp(*(argv + 1), "here_doc"))
+	{
+		argv++;
+		argc--; //
+		flag = 1;
+	}
+	if (argc <= 4)
+		return (1);
+	set_filepaths(&argc, &argv, filepaths);
+	get_fdio(flag, filepaths, fd_file);
+	if (pipe(pipefd) < 0)
+	{
+		perror("pipe");
+		return (1);	
+	}
+	pid_t pid = fork();
+	if (pid < 0)
+	{
+		perror("fork");
+		return (1);		
+	}
+	else if (pid == 0)
+		nurcery(argc, argv, envp, fd_file, flag);
+	
+	else
+	{
+		int	status;	
+		close(pipefd[1]);
+		close(pipefd[0]);	
+		wait(&status);	
+	}
+	return (0);
+}
+
+int	main2(int argc, char *argv[], char *envp[])
 {
 	char	*filepaths[2];
 	int		fd_file[2];
