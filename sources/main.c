@@ -6,7 +6,7 @@
 /*   By: seblin <seblin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/06 11:14:52 by svidot            #+#    #+#             */
-/*   Updated: 2023/12/14 18:34:33 by seblin           ###   ########.fr       */
+/*   Updated: 2023/12/14 18:58:20 by seblin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -324,7 +324,6 @@ void	nurcery(int argc, char *argv[], char *envp[], int fd_file[], int flag)
 	close(pipefd_in[0]);
 	close(fd_file[1]);
 }
-
 
 void	nurcery2(int argc, char *argv[], char *envp[], int fd_file[])
 {
