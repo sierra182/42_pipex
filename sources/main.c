@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: seblin <seblin@student.42.fr>              +#+  +:+       +#+        */
+/*   By: svidot <svidot@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/06 11:14:52 by svidot            #+#    #+#             */
-/*   Updated: 2023/12/14 09:02:49 by seblin           ###   ########.fr       */
+/*   Updated: 2023/12/14 12:15:48 by svidot           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -247,6 +247,8 @@ char	**parse_cmd(char *argv[], char *envp[])
 			break ;
 		}
 	}
+	if (!env_find)
+		return (perror("env Path not found"), exit(1), NULL);
 	split_arg = ft_split(*argv, ' ');
 	join_simplequote(split_arg);
 	if (env_find)
@@ -255,10 +257,15 @@ char	**parse_cmd(char *argv[], char *envp[])
 		split_colon = ft_split(env_find, ':');
 		while (*split_colon)
 		{
-			cmd =   ft_strjoin(ft_strjoin(*split_colon++, "/"), *split_arg);		
+			cmd = ft_strjoin(ft_strjoin(*split_colon++, "/"), *split_arg);		
 			if (!access(cmd, X_OK))
+			{
 				split_arg[0] = cmd;
+				break;
+			}
 		}
+		if (split_arg[0] != cmd)
+			return (perror(split_arg[0]), exit(1), NULL);
 	}
 	return (split_arg);
 }
@@ -446,9 +453,9 @@ void	close_fd(int fd_file[])
 		close(fd_file[1]);
 }
 
-void	get_fdio(int flag, char *filepaths[], int fd_file[])
+void	get_fdiotab(int flag, char *filepaths[], int fd_file[])
 {
-	char	*ptr[2][4];
+	char	*ptr[3][4];
 	char *(*error_str)[4] = ptr; 
 	char *(*error_str2)[4] = ptr; 
 	int	i;
@@ -456,12 +463,17 @@ void	get_fdio(int flag, char *filepaths[], int fd_file[])
 	
 	//error_str = err_str;
 	i = -1;
-	while (++i < 2)
+	while (++i < 3)
 	{
 		j = -1;		
 		while (++j < 4)
-			error_str[i][j] = NULL;
+		{		
+			ptr[i][j] = NULL;
+			error_str2[i][j] = NULL;
+			error_str[i][j] = NULL;			
+		}
 	}
+	//ptr[2] = NULL;
 	if (!flag)
 	{	
 		fd_file[0] = open(filepaths[0], O_RDONLY);
@@ -470,8 +482,7 @@ void	get_fdio(int flag, char *filepaths[], int fd_file[])
 			(*error_str)[0] = ft_strdup(strerror(errno));
 			(*error_str)[1] = ": ";
 			(*error_str)[2] = filepaths[0];
-			(*error_str++)[3] = "\n";	
-			//(*error_str++)[4] = NULL;			
+			(*error_str++)[3] = "\n";				
 		}	
 		fd_file[1] = open(filepaths[1], O_WRONLY | O_CREAT | O_TRUNC, 400);
 		if (fd_file[1] < 0)			
@@ -480,7 +491,7 @@ void	get_fdio(int flag, char *filepaths[], int fd_file[])
 			(*error_str)[1] = ": ";
 			(*error_str)[2] = filepaths[1];
 			(*error_str++)[3] = "\n";	
-			//(*error_str)[4] = NULL;				
+					
 		}	
 	}
 	else
@@ -493,22 +504,80 @@ void	get_fdio(int flag, char *filepaths[], int fd_file[])
 			(*error_str)[1] = ": ";
 			(*error_str)[2] = filepaths[1];
 			(*error_str)[3] = "\n";	
-			(*error_str)[4] = NULL;					
+			//(*error_str)[4] = NULL;					
 		}				
 	}
 	error_str = error_str2;
-	while (**error_str)	
-	{
+
+	while (*error_str[0])	
+	{ft_printf("err: %s\n", **error_str);
 		i = 0;
 		while (i < 4)	
 			ft_putstr_fd((*error_str)[i++], STDERR_FILENO);	
-		error_str++;		
+		error_str++;	
+	
 	}
 	if (error_str2[0][0])
 		free(error_str2[0][0]);
 	if (error_str2[1][0])
 		free(error_str2[1][0]);
 	return (close_fd(fd_file), exit(EXIT_FAILURE));	
+}
+
+
+void	get_fdio(int flag, char *filepaths[], int fd_file[])
+{
+	char	*error_str;
+	
+	error_str = "";
+	if (!flag)
+	{	
+		fd_file[0] = open(filepaths[0], O_RDONLY);
+		if (fd_file[0] < 0)
+		{
+			char *s1 = ft_strjoin(strerror(errno), ": ");
+			char *s2 = ft_strjoin(s1, filepaths[0]);
+			char *s3 = ft_strjoin(s2, "\n");		
+			error_str = ft_strjoin(error_str, s3);		
+			free(s1);
+			free(s2);
+			free(s3);
+			
+		}	
+		fd_file[1] = open(filepaths[1], O_WRONLY | O_CREAT | O_TRUNC, 400);
+		if (fd_file[1] < 0)			
+		{
+			char *s1 = ft_strjoin(strerror(errno), ": ");
+			char *s2 = ft_strjoin(s1, filepaths[1]);
+			char *s3 = ft_strjoin(s2, "\n");
+			char *s4 = NULL;
+			if (*error_str)
+				s4 = error_str;
+			error_str = ft_strjoin(error_str, s3);	
+			free(s1);
+			free(s2);
+			free(s3);
+			if (s4)	
+				free(s4);
+		}	
+	}
+	else
+	{
+		fd_file[0] = -1;
+		fd_file[1] = open(filepaths[1], O_WRONLY | O_CREAT | O_APPEND, 400);		
+		if (fd_file[1] < 0)			
+		{
+			char *s1 = ft_strjoin(strerror(errno), ": ");
+			char *s2 = ft_strjoin(s1, filepaths[1]);
+			char *s3 = ft_strjoin(s2, "\n");			
+			error_str = ft_strjoin(error_str, s3);	
+			free(s1);
+			free(s2);
+			free(s3);				
+		}				
+	}
+	if (*error_str)
+		return (ft_putstr_fd(error_str, STDERR_FILENO), free_error_str(error_str), close_fd(fd_file), exit(EXIT_FAILURE));	
 }
 
 void	get_fdio2(int flag, char *filepaths[], int fd_file[])
