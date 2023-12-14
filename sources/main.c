@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: svidot <svidot@student.42.fr>              +#+  +:+       +#+        */
+/*   By: seblin <seblin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/06 11:14:52 by svidot            #+#    #+#             */
-/*   Updated: 2023/12/14 12:15:48 by svidot           ###   ########.fr       */
+/*   Updated: 2023/12/14 18:34:33 by seblin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,7 +51,7 @@ void	set_pipe_forward(int pipefd_in[], int pipefd_out[])
 	close(pipefd_out[0]);
 }
 
-void	here_doc_handle(int *argc, char **argv[], int pipe_fd[])
+void	here_doc_handle(int *argc, char **argv[], int pipefd_in[])
 {
 	char	*h_doc;
 	char	*line;
@@ -63,12 +63,11 @@ void	here_doc_handle(int *argc, char **argv[], int pipe_fd[])
 		if (line > 0)
 		{			
 			if (ft_strncmp(line, h_doc, ft_strlen(h_doc) - 1))
-				ft_putstr_fd(line, pipe_fd[1]);
+				ft_putstr_fd(line, pipefd_in[1]);
 			else
 				break ;
 		}
-	}
-	close(pipe_fd[1]);
+	}	
 }
 
 void	ft_delstr(char **arr)
@@ -289,14 +288,17 @@ void	nurcery(int argc, char *argv[], char *envp[], int fd_file[], int flag)
 		exit(EXIT_FAILURE);
 	}
 	if (!flag)
-		pipefd_in[0] = fd_file[0];
-	if (flag)
-		here_doc_handle(&argc, &argv, pipefd_in);
+	{
+		close(pipefd_in[0]);
+		pipefd_in[0] = fd_file[0];	
+	}
+	if (flag)	
+		here_doc_handle(&argc, &argv, pipefd_in);		
 	while(*(++argv + 1))
 	{	
 		pid = fork();		
 		if (pid == 0)
-		{	
+		{		
 			char **split = parse_cmd(argv, envp);		
 			set_pipe_forward(pipefd_in, pipefd_out);							
 			execve(split[0], split, envp);  
@@ -316,9 +318,11 @@ void	nurcery(int argc, char *argv[], char *envp[], int fd_file[], int flag)
 	}
 	close(pipefd_in[1]);
 	close(pipefd_out[1]);
+	close(pipefd_out[0]);
 	while (read(pipefd_in[0], &buf, 1))
 		ft_putchar_fd(buf, fd_file[1]);
-	close(pipefd_in[0]);	
+	close(pipefd_in[0]);
+	close(fd_file[1]);
 }
 
 
@@ -609,7 +613,6 @@ int	main(int argc, char *argv[], char *envp[])
 {
 	char	*filepaths[2];
 	int		fd_file[2];	
-	int		pipefd[2];
 	int		flag;
 
 	flag = 0;
@@ -623,27 +626,7 @@ int	main(int argc, char *argv[], char *envp[])
 		return (1);
 	set_filepaths(&argc, &argv, filepaths);
 	get_fdio(flag, filepaths, fd_file);
-	if (pipe(pipefd) < 0)
-	{
-		perror("pipe");
-		return (1);	
-	}
-	pid_t pid = fork();
-	if (pid < 0)
-	{
-		perror("fork");
-		return (1);		
-	}
-	else if (pid == 0)
-		nurcery(argc, argv, envp, fd_file, flag);
-	
-	else
-	{
-		int	status;	
-		close(pipefd[1]);
-		close(pipefd[0]);	
-		wait(&status);	
-	}
+	nurcery(argc, argv, envp, fd_file, flag);
 	return (0);
 }
 
