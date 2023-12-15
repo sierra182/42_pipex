@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: seblin <seblin@student.42.fr>              +#+  +:+       +#+        */
+/*   By: svidot <svidot@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/06 11:14:52 by svidot            #+#    #+#             */
-/*   Updated: 2023/12/14 18:58:20 by seblin           ###   ########.fr       */
+/*   Updated: 2023/12/15 13:38:39 by svidot           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,12 @@
 
 #include "get_next_line.h"
 
-
+typedef struct s_cmd
+{
+	int		pid;
+	char	*name;
+	char	*path;
+} t_cmd;
 
 void	set_filepaths_hd(int argc, char **argv[], char *filepaths[])
 {
@@ -51,7 +56,7 @@ void	set_pipe_forward(int pipefd_in[], int pipefd_out[])
 	close(pipefd_out[0]);
 }
 
-void	here_doc_handle(int *argc, char **argv[], int pipefd_in[])
+void	here_doc_handle(char **argv[], int pipefd_in[])
 {
 	char	*h_doc;
 	char	*line;
@@ -269,7 +274,7 @@ char	**parse_cmd(char *argv[], char *envp[])
 	return (split_arg);
 }
 
-void	nurcery(int argc, char *argv[], char *envp[], int fd_file[], int flag)
+void	nurcery(char *argv[], char *envp[], int fd_file[], int flag, t_cmd *cmds)
 {
 	pid_t 	pid;
 	int		pipefd_in[2];
@@ -293,11 +298,17 @@ void	nurcery(int argc, char *argv[], char *envp[], int fd_file[], int flag)
 		pipefd_in[0] = fd_file[0];	
 	}
 	if (flag)	
-		here_doc_handle(&argc, &argv, pipefd_in);		
+		here_doc_handle(&argv, pipefd_in);
+	int	i;
+	i = 0;	
 	while(*(++argv + 1))
 	{	
-		pid = fork();		
-		if (pid == 0)
+		(++cmds)->pid = fork();
+		if (cmds->pid < 0)		
+		{
+			;//err
+		}
+		if (cmds->pid == 0)
 		{		
 			char **split = parse_cmd(argv, envp);		
 			set_pipe_forward(pipefd_in, pipefd_out);							
@@ -313,7 +324,7 @@ void	nurcery(int argc, char *argv[], char *envp[], int fd_file[], int flag)
 			{
 				perror("pipe");
 				exit(EXIT_FAILURE);
-			}     		
+			}	   		
 		}
 	}
 	close(pipefd_in[1]);
@@ -411,7 +422,7 @@ void	parent_area(pid_t pid, int pipefd[])
 void	set_filepaths(int *argc, char **argv[], char *filepaths[])
 {
 	filepaths[0] = *(++*argv);
-	filepaths[1] = (*argv)[--*argc - 1];
+	filepaths[1] = (*argv)[*argc - 2];
 }
 
 void	file_acces_handle2(int flag, char *filepaths[], int fd_file[])
@@ -527,7 +538,6 @@ void	get_fdiotab(int flag, char *filepaths[], int fd_file[])
 	return (close_fd(fd_file), exit(EXIT_FAILURE));	
 }
 
-
 void	get_fdio(int flag, char *filepaths[], int fd_file[])
 {
 	char	*error_str;
@@ -608,84 +618,60 @@ void	get_fdio2(int flag, char *filepaths[], int fd_file[])
 		return (ft_putstr_fd(error_str, STDERR_FILENO), free_error_str(error_str), close_fd(fd_file), exit(EXIT_FAILURE));	
 }
 
+
+t_cmd	*create_cmds(int argc, char *argv[])
+{
+	t_cmd	*cmds;
+
+	cmds = (t_cmd *) ft_calloc(argc - 1, sizeof(t_cmd));
+	return (cmds);
+}
 int	main(int argc, char *argv[], char *envp[])
 {
 	char	*filepaths[2];
 	int		fd_file[2];	
+	t_cmd	*cmds;
 	int		flag;
-
+	
 	flag = 0;
 	if (!ft_strcmp(*(argv + 1), "here_doc"))
 	{
 		argv++;
-		argc--; //
+		argc--; 
 		flag = 1;
 	}
 	if (argc <= 4)
 		return (1);
 	set_filepaths(&argc, &argv, filepaths);
 	get_fdio(flag, filepaths, fd_file);
-	nurcery(argc, argv, envp, fd_file, flag);
-	return (0);
-}
-
-int	main2(int argc, char *argv[], char *envp[])
-{
-	char	*filepaths[2];
-	int		fd_file[2];
-	char	**cmd_arr;
-	int		pipefd[2];
-	int		flag;
-
-	flag = 0;
-	if (!ft_strcmp(*(argv + 1), "here_doc"))
+	cmds = create_cmds(argc, argv);
+	nurcery(argv, envp, fd_file, flag, cmds);
+	int status;
+	pid_t wait_res;	
+	while ((++cmds)->pid)
 	{
-		argv++;
-		argc--;
-		flag = 1;
-	}
-	if (argc <= 4)
-		return (1);
-	//if (!flag)
-	set_filepaths(&argc, &argv, filepaths);
-	//else
-	//	set_filepaths_hd(argc, &argv, filepaths);
-	//ft_printf("argv:%s\n", *argv);
-	//ft_printf("filepath1:%s\n", filepaths[0]);
-	//ft_printf("filepath2:%s\n", filepaths[1]);	
-	//ft_printf("je suis dieu le pere et je vais me forker\n");
-		
-	if (!flag)
-	{			
-		fd_file[0] = open(filepaths[0], O_RDONLY);
-		fd_file[1] = open(filepaths[1], O_WRONLY | O_CREAT | O_TRUNC, 400);
-	}	
-	else
-	{
-		fd_file[0] = 0;
-		fd_file[1] = open(filepaths[1], O_WRONLY | O_CREAT | O_APPEND, 400);
-	}
-	if (pipe(pipefd) < 0)
-	{
-		perror("pipe");
-		return (1);	
-	}
-	pid_t pid = fork();
-	if (pid < 0)
-	{
-		perror("fork");
-		return (1);		
-	}
-	else if (pid == 0)
-		nurcery(argc, argv, envp, fd_file, flag);
-		//child_area(pid, pipefd, envp);
-	else
-	{
-		int	status;	
-		close(pipefd[1]);
-		close(pipefd[0]);	
-		wait(&status);
-		//parent_area(pid, pipefd);
+	 	ft_printf("pids coms:%d\n", cmds->pid);
+		wait_res = waitpid(cmds->pid, &status, WNOHANG);
+		if (wait_res < 0)
+		{
+			;// if < 0 erreur de waitpid			
+		}
+		else if (wait_res > 0)
+		{
+			if (WIFEXITED(status))
+			{
+				;//termine normalement int exit_status = WEXITSTATUS(status);
+			}
+			else if (WIFSIGNALED(status))
+			{
+				;//termine par un signal (crash) int term_sig = WTERMSIG(status);
+			}
+		}
 	}
 	return (0);
 }
+
+
+
+
+
