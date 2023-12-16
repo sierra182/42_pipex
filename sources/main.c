@@ -6,7 +6,7 @@
 /*   By: seblin <seblin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/06 11:14:52 by svidot            #+#    #+#             */
-/*   Updated: 2023/12/16 18:03:19 by seblin           ###   ########.fr       */
+/*   Updated: 2023/12/16 22:33:27 by seblin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -243,6 +243,7 @@ char	**parse_cmd(char *argv[], char *envp[], t_cmd *cmds, int fd_file[])
 {
 	char	**split_arg;
 	char	**split_colon;
+	char	**split_colon_sav;
 	char	*env_to_find;
 	char	*env_find;
 	char	*cmd;
@@ -259,43 +260,49 @@ char	**parse_cmd(char *argv[], char *envp[], t_cmd *cmds, int fd_file[])
 	}
 	if (!env_find)
 		return (perror("env Path not found"), exit(1), NULL);
-	split_arg = ft_split(*argv, ' ');
-	//join_simplequote(split_arg);
-	if (env_find)
+	split_arg = ft_split(*argv, ' ');	
+	//join_simplequote(split_arg);	
+	env_find += ft_strlen(env_to_find);
+	split_colon = ft_split(env_find, ':');
+	split_colon_sav = split_colon;
+	while (*split_colon)
 	{
-		env_find += ft_strlen(env_to_find);
-		split_colon = ft_split(env_find, ':');
-		while (*split_colon)
-		{
-			char	*s1;
+		char	*s1;
 
-			s1 = ft_strjoin(*split_colon++, "/");
-			cmd = ft_strjoin(s1, *split_arg);
-			free(s1);	
-			if (!access(cmd, X_OK))
-			{
-				split_arg[0] = cmd;
-				break;
-			}
-			free(cmd);
-		}
-		if (split_arg[0] != cmd)
+		s1 = ft_strjoin(*split_colon++, "/");
+		cmd = ft_strjoin(s1, *split_arg);
+		free(s1);	
+		if (!access(cmd, X_OK))
 		{
-			close (fd_file[1]);
-			free(cmd);
-			int i;
-			i = 0;
-			while (split_colon[i])
-				free(split_colon[i++]);
-			free(split_colon);
-			i = 0;
-			while (split_arg[i])
-				free(split_arg[i++]);
-			free(split_arg);
-			free(cmds);
-			return (perror(split_arg[0]), exit(1), NULL);
+			free(*split_arg);
+			*split_arg = cmd;
+			break;
 		}
+		free(cmd);
+		cmd = NULL;
 	}
+	if (!cmd)
+	{
+		close(fd_file[1]);
+		int i;
+		i = 0;
+		while (split_colon_sav[i])
+			free(split_colon_sav[i++]);
+		free(split_colon_sav);
+		perror(*split_arg);
+		i = 0;
+		while (split_arg[i])
+			free(split_arg[i++]);
+		free(split_arg);
+		while((--cmds)->pid)
+		{		
+			ft_putstr_fd(ft_itoa(cmds->pid), 2);
+		}
+		ft_putstr_fd("\n", 2);
+		ft_putstr_fd(ft_itoa(cmds->pid), 2);
+		free(cmds);
+		return (exit(1), NULL);
+	}	
 	return (split_arg);
 }
 
@@ -650,7 +657,7 @@ t_cmd	*create_cmds(int argc, char *argv[])
 {
 	t_cmd	*cmds;
 
-	cmds = (t_cmd *) ft_calloc(argc - 1, sizeof(t_cmd)); // si NULL close fd_file [1] et ?[0]
+	cmds = (t_cmd *) ft_calloc(argc - 1, sizeof(t_cmd)); // si NULL close fd_file [1] et ?[0]	
 	return (cmds);
 }
 int	main(int argc, char *argv[], char *envp[])
