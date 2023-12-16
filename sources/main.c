@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: svidot <svidot@student.42.fr>              +#+  +:+       +#+        */
+/*   By: seblin <seblin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/06 11:14:52 by svidot            #+#    #+#             */
-/*   Updated: 2023/12/16 16:29:48 by svidot           ###   ########.fr       */
+/*   Updated: 2023/12/16 18:03:19 by seblin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -239,7 +239,7 @@ void	join_simplequote2(char **split_arg)
 	}	
 }
 
-char	**parse_cmd(char *argv[], char *envp[])
+char	**parse_cmd(char *argv[], char *envp[], t_cmd *cmds, int fd_file[])
 {
 	char	**split_arg;
 	char	**split_colon;
@@ -260,22 +260,41 @@ char	**parse_cmd(char *argv[], char *envp[])
 	if (!env_find)
 		return (perror("env Path not found"), exit(1), NULL);
 	split_arg = ft_split(*argv, ' ');
-	join_simplequote(split_arg);
+	//join_simplequote(split_arg);
 	if (env_find)
 	{
 		env_find += ft_strlen(env_to_find);
 		split_colon = ft_split(env_find, ':');
 		while (*split_colon)
 		{
-			cmd = ft_strjoin(ft_strjoin(*split_colon++, "/"), *split_arg);		
+			char	*s1;
+
+			s1 = ft_strjoin(*split_colon++, "/");
+			cmd = ft_strjoin(s1, *split_arg);
+			free(s1);	
 			if (!access(cmd, X_OK))
 			{
 				split_arg[0] = cmd;
 				break;
 			}
+			free(cmd);
 		}
 		if (split_arg[0] != cmd)
+		{
+			close (fd_file[1]);
+			free(cmd);
+			int i;
+			i = 0;
+			while (split_colon[i])
+				free(split_colon[i++]);
+			free(split_colon);
+			i = 0;
+			while (split_arg[i])
+				free(split_arg[i++]);
+			free(split_arg);
+			free(cmds);
 			return (perror(split_arg[0]), exit(1), NULL);
+		}
 	}
 	return (split_arg);
 }
@@ -317,7 +336,7 @@ void	nurcery(char *argv[], char *envp[], int fd_file[], int flag, t_cmd *cmds) /
 		if (cmds->pid == 0)
 		{		
 			set_pipe_forward(pipefd_in, pipefd_out);		// si ok fd_file [1], cmds				
-			char **split = parse_cmd(argv, envp);			
+			char **split = parse_cmd(argv, envp, cmds, fd_file);			
 			if (execve(split[0], split, envp) < 0)
 			{
 				exit(EXIT_FAILURE);
