@@ -6,7 +6,7 @@
 /*   By: svidot <svidot@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/06 11:14:52 by svidot            #+#    #+#             */
-/*   Updated: 2023/12/16 11:48:09 by svidot           ###   ########.fr       */
+/*   Updated: 2023/12/16 16:29:48 by svidot           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,7 +71,7 @@ void	here_doc_handle(char **argv[], int pipefd_in[])
 				ft_putstr_fd(line, pipefd_in[1]); // // gerer -1 errno close fd_file ?[0] [1] et free cmds et close pipefd_in ?[0] [1] et close pipefd_out [0] [1] et line et gnl(?)
 			else
 			{
-				free(line);
+				free(line);  get_next_line(42); // !!!
 				break ; // sortie normale line et gnl(?)
 			}
 		}
@@ -304,7 +304,7 @@ void	nurcery(char *argv[], char *envp[], int fd_file[], int flag, t_cmd *cmds) /
 		pipefd_in[0] = fd_file[0];	
 	}
 	if (flag)	
-		here_doc_handle(&argv, pipefd_in); // si pas ok close fd_file [1] et free cmds et close pipefd_in [0] [1] et close pipefd_out [0] [1]
+		here_doc_handle(&argv, pipefd_in); // si ok close fd_file [1] et free cmds et close pipefd_in [0] [1] et close pipefd_out [0] [1]
 	int	i;
 	i = 0;	
 	while(*(++argv + 1))
@@ -316,9 +316,13 @@ void	nurcery(char *argv[], char *envp[], int fd_file[], int flag, t_cmd *cmds) /
 		}
 		if (cmds->pid == 0)
 		{		
-			set_pipe_forward(pipefd_in, pipefd_out);		// si pas ok fd_file [1], cmds				
-			char **split = parse_cmd(argv, envp);		
-			execve(split[0], split, envp);  
+			set_pipe_forward(pipefd_in, pipefd_out);		// si ok fd_file [1], cmds				
+			char **split = parse_cmd(argv, envp);			
+			if (execve(split[0], split, envp) < 0)
+			{
+				exit(EXIT_FAILURE);
+				// gerer errno -1, fd_file [1], cmds, et split	EXIT important sinon arbre!!!
+			}  
 		}
 		else
 		{			// gerer les processus fils en cours ? 
@@ -329,7 +333,7 @@ void	nurcery(char *argv[], char *envp[], int fd_file[], int flag, t_cmd *cmds) /
 			if (pipe(pipefd_out) < 0) 
 			{
 				perror("pipe");      // gerer -1 errno close fd_file [1] et free cmds et close pipefd_in [0] [1] 
-				exit(EXIT_FAILURE);
+				exit(EXIT_FAILURE); 
 			}	   		
 		}
 	}
@@ -652,33 +656,34 @@ int	main(int argc, char *argv[], char *envp[])
 	nurcery(argv, envp, fd_file, flag, cmds);
 	int status;
 	pid_t wait_res;	
-	while (1)
-	{
-		while ((++cmds)->pid)
-		{
-			//ft_printf("pids coms:%d\n", cmds->pid);
-			wait_res = waitpid(cmds->pid, &status, WNOHANG);
-			if (wait_res < 0)
-			{
-				;// if < 0 erreur de waitpid		free cmds	                                                                                                                                                                                                                                                                                                                                                   
-			}
-			else if (wait_res > 0)
-			{
-				if (WIFEXITED(status))
-				{
-					int exit_status = WEXITSTATUS(status);
-					ft_printf("le processus :%d s'est terminé correctement avec le status %d\n", cmds->pid, exit_status); 
-				}
-				else if (WIFSIGNALED(status))
-				{
-					int term_sig = WTERMSIG(status);
-					ft_printf("le processus :%d s'est terminé par un crash avec le status %d\n", cmds->pid, term_sig); 
-				}
-			}
-		}
-		while ((--cmds)->pid)
-			;
-	}
+	free(cmds);
+	// while (1)
+	// {
+	// 	while ((++cmds)->pid)
+	// 	{
+	// 		//ft_printf("pids coms:%d\n", cmds->pid);
+	// 		wait_res = waitpid(cmds->pid, &status, WNOHANG);
+	// 		if (wait_res < 0)
+	// 		{ 
+	// 			;// if < 0 erreur de waitpid		free cmds	                                                                                                                                                                                                                                                                                                                                                   
+	// 		}
+	// 		else if (wait_res > 0)
+	// 		{
+	// 			if (WIFEXITED(status))
+	// 			{
+	// 				int exit_status = WEXITSTATUS(status);
+	// 				ft_printf("le processus :%d s'est terminé correctement avec le status %d\n", cmds->pid, exit_status); 
+	// 			}
+	// 			else if (WIFSIGNALED(status))
+	// 			{
+	// 				int term_sig = WTERMSIG(status);
+	// 				ft_printf("le processus :%d s'est terminé par un crash avec le status %d\n", cmds->pid, term_sig); 
+	// 			}
+	// 		}
+	// 	}
+	// 	while ((--cmds)->pid)
+	// 		;
+	// }
 
 	return (0);
 }
