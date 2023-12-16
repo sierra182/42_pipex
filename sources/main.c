@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: seblin <seblin@student.42.fr>              +#+  +:+       +#+        */
+/*   By: svidot <svidot@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/06 11:14:52 by svidot            #+#    #+#             */
-/*   Updated: 2023/12/15 21:46:06 by seblin           ###   ########.fr       */
+/*   Updated: 2023/12/16 11:48:09 by svidot           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,14 +46,14 @@ void	set_cmd(char **cmd_arr, char *argv[])
 	ft_printf("filepath2:%d\n", n_cmd);
 }
 
-void	set_pipe_forward(int pipefd_in[], int pipefd_out[])
+void	set_pipe_forward(int pipefd_in[], int pipefd_out[]) 
 {			
-	dup2(pipefd_in[0], STDIN_FILENO);
-	close(pipefd_in[0]);
-	close(pipefd_in[1]);
-	dup2(pipefd_out[1], STDOUT_FILENO);	
-	close(pipefd_out[1]);
-	close(pipefd_out[0]);
+	dup2(pipefd_in[0], STDIN_FILENO); // si -1 errno fd_file [1] pipefd_in[0][1] pipefd_out [0][1] cmds
+	close(pipefd_in[0]); //  si -1 errno fd_file [1] pipefd_in[1] pipefd_out [0][1] cmds
+	close(pipefd_in[1]); //  si -1 errno fd_file [1] pipefd_out [0][1] cmds
+	dup2(pipefd_out[1], STDOUT_FILENO);	//  si -1 errno fd_file [1] pipefd_out [0][1] cmds
+	close(pipefd_out[1]); //  si -1 errno fd_file [1] pipefd_out [0] cmds
+	close(pipefd_out[0]);  //  si -1 errno fd_file [1] cmds
 }
 
 void	here_doc_handle(char **argv[], int pipefd_in[])
@@ -70,10 +70,13 @@ void	here_doc_handle(char **argv[], int pipefd_in[])
 			if (ft_strncmp(line, h_doc, ft_strlen(h_doc) - 1))
 				ft_putstr_fd(line, pipefd_in[1]); // // gerer -1 errno close fd_file ?[0] [1] et free cmds et close pipefd_in ?[0] [1] et close pipefd_out [0] [1] et line et gnl(?)
 			else
-				break ;
+			{
+				free(line);
+				break ; // sortie normale line et gnl(?)
+			}
 		}
 		else
-			; // gerer -1 errno close fd_file ?[0] [1] et free cmds et close pipefd_in ?[0] [1] et close pipefd_out [0] [1]
+			; // sortie par eof anormale :gerer -1 errno close fd_file ?[0] [1] et free cmds et close pipefd_in ?[0] [1] et close pipefd_out [0] [1]
 		free(line);
 	}	
 }
@@ -277,7 +280,7 @@ char	**parse_cmd(char *argv[], char *envp[])
 	return (split_arg);
 }
 
-void	nurcery(char *argv[], char *envp[], int fd_file[], int flag, t_cmd *cmds)
+void	nurcery(char *argv[], char *envp[], int fd_file[], int flag, t_cmd *cmds) // pas oblg ?
 {
 	pid_t 	pid;
 	int		pipefd_in[2];
@@ -297,11 +300,11 @@ void	nurcery(char *argv[], char *envp[], int fd_file[], int flag, t_cmd *cmds)
 	}
 	if (!flag)
 	{
-		close(pipefd_in[0]); // gerer -1 errno close fd_file ?-1[0] [1] et free cmds et close pipefd_in [1] et close pipefd_out [0] [1] // pas oblg
+		close(pipefd_in[0]); // gerer -1 errno close fd_file ?-1[0] [1] et free cmds et close pipefd_in [1] et close pipefd_out [0] [1] 
 		pipefd_in[0] = fd_file[0];	
 	}
 	if (flag)	
-		here_doc_handle(&argv, pipefd_in);
+		here_doc_handle(&argv, pipefd_in); // si pas ok close fd_file [1] et free cmds et close pipefd_in [0] [1] et close pipefd_out [0] [1]
 	int	i;
 	i = 0;	
 	while(*(++argv + 1))
@@ -313,30 +316,30 @@ void	nurcery(char *argv[], char *envp[], int fd_file[], int flag, t_cmd *cmds)
 		}
 		if (cmds->pid == 0)
 		{		
+			set_pipe_forward(pipefd_in, pipefd_out);		// si pas ok fd_file [1], cmds				
 			char **split = parse_cmd(argv, envp);		
-			set_pipe_forward(pipefd_in, pipefd_out);							
 			execve(split[0], split, envp);  
 		}
 		else
 		{			// gerer les processus fils en cours ? 
-			close(pipefd_in[1]); 
-			close(pipefd_in[0]);
+			close(pipefd_in[1]); //gerer -1 errno close fd_file [1] et free cmds et close pipefd_in [0] et close pipefd_out [0] [1]
+			close(pipefd_in[0]); //gerer -1 errno close fd_file [1] et free cmds et close pipefd_out [0] [1]
 			pipefd_in[0] = pipefd_out[0];
 			pipefd_in[1] = pipefd_out[1];
-			if (pipe(pipefd_out) < 0)
+			if (pipe(pipefd_out) < 0) 
 			{
-				perror("pipe");
+				perror("pipe");      // gerer -1 errno close fd_file [1] et free cmds et close pipefd_in [0] [1] 
 				exit(EXIT_FAILURE);
 			}	   		
 		}
 	}
-	close(pipefd_in[1]);
-	close(pipefd_out[1]);
-	close(pipefd_out[0]);
-	while (read(pipefd_in[0], &buf, 1))
-		ft_putchar_fd(buf, fd_file[1]);
-	close(pipefd_in[0]);
-	close(fd_file[1]);
+	close(pipefd_in[1]); //gerer -1 errno close fd_file [1] et close pipefd_in [0] et close pipefd_out [0] [1] et free cmds
+	close(pipefd_out[1]); //gerer -1 errno close fd_file [1] et close pipefd_in [0] et close pipefd_out [0] et free cmds
+	close(pipefd_out[0]); //gerer -1 errno close fd_file [1] et close pipefd_in [0] et free cmds
+	while (read(pipefd_in[0], &buf, 1)) //gerer -1 errno close fd_file [1] et close pipefd_in [0] et free cmds
+		ft_putchar_fd(buf, fd_file[1]); //gerer -1 errno close fd_file [1] et close pipefd_in [0] et free cmds
+	close(pipefd_in[0]);  //gerer -1 errno close fd_file [1] et free cmds
+	close(fd_file[1]); //et free cmds
 }
 
 void	nurcery2(int argc, char *argv[], char *envp[], int fd_file[])
@@ -588,7 +591,7 @@ void	get_fdio(int flag, char *filepaths[], int fd_file[])
 			error_str = ft_strjoin(error_str, s3);	// gerer le NULL free s1 s2 s3
 			free(s1);
 			free(s2);
-			free(s3);				
+			free(s3);
 		}				
 	}
 	if (*error_str)
@@ -612,14 +615,13 @@ void	get_fdio2(int flag, char *filepaths[], int fd_file[])
 	else
 	{
 		fd_file[0] = -1;
-		fd_file[1] = open(filepaths[1], O_WRONLY | O_CREAT | O_APPEND, 400);
+		fd_file[1] = open(filepaths[1], O_WRONLY | O_CREAT | O_APPEND, 400);                                                                    
 		if (fd_file[1] < 0)		
 			error_str = ft_strjoin(error_str, ft_strjoin(ft_strjoin(ft_strjoin(strerror(errno), ": "), filepaths[1]), "\n"));				
 	}
 	if (*error_str)
 		return (ft_putstr_fd(error_str, STDERR_FILENO), free_error_str(error_str), close_fd(fd_file), exit(EXIT_FAILURE));	
 }
-
 
 t_cmd	*create_cmds(int argc, char *argv[])
 {
@@ -658,7 +660,7 @@ int	main(int argc, char *argv[], char *envp[])
 			wait_res = waitpid(cmds->pid, &status, WNOHANG);
 			if (wait_res < 0)
 			{
-				;// if < 0 erreur de waitpid		free cmds	
+				;// if < 0 erreur de waitpid		free cmds	                                                                                                                                                                                                                                                                                                                                                   
 			}
 			else if (wait_res > 0)
 			{
