@@ -41,7 +41,7 @@ $(BONUS_DIR)/%.o : $(BONUS_DIR)/%.c $(LDFLAGS) $(HEADERS_BONUS)
 
 all : intro ft_printf $(NAME) emoticon		
 
-l :ft_printf $(NAME) emoticon		
+l :ft_printf $(NAME) emoticon
 
 $(NAME) : $(OBJECTS) 
 	@echo "\n\033[0;32m linking $(NAME) objects with $(LDFLAGS)...\033[0m 🚀\n"

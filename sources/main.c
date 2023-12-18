@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: svidot <svidot@student.42.fr>              +#+  +:+       +#+        */
+/*   By: seblin <seblin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/06 11:14:52 by svidot            #+#    #+#             */
-/*   Updated: 2023/12/18 17:53:09 by svidot           ###   ########.fr       */
+/*   Updated: 2023/12/18 21:36:58 by seblin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,6 +48,7 @@ void	here_doc_handle(char **argv[], int pipefd_in[])
 	h_doc = **argv;
 	while (1) // bof
 	{
+		ft_printf("here_doc ");
 		line = get_next_line(0);
 		if (line)
 		{			
@@ -60,7 +61,7 @@ void	here_doc_handle(char **argv[], int pipefd_in[])
 			}
 		}
 		else
-			; // sortie par eof anormale :gerer -1 errno close fd_file ?[0] [1] et free cmds et close pipefd_in ?[0] [1] et close pipefd_out [0] [1]
+			exit(1);ft_printf("fin "); // sortie par eof anormale :gerer -1 errno close fd_file ?[0] [1] et free cmds et close pipefd_in ?[0] [1] et close pipefd_out [0] [1]
 		free(line);
 	}	
 }
@@ -119,8 +120,8 @@ void	join_simplequote(char **split_arg)
 		}		
 		split_arg++;
 	}
-	if (start && end)
-	{		
+	if (start && end && start != end)
+	{		ft_putstr_fd("yaaaa\n", 2);
 		char **temp;
 		char *res;
 		temp = start;
@@ -129,18 +130,18 @@ void	join_simplequote(char **split_arg)
 		while (*++temp && *temp <= *end)
 		{						
 			res = ft_strjoin(ft_strjoin(res, " "), *temp);
-			j++;
+			j++;ft_putstr_fd("yuuu\n", 2);
 		}		
 		split_arg = split_arg_save;
 		while (*split_arg)
-		{
+		{ft_putstr_fd("yiii\n", 2);
 			while (*split_arg == *start && j--)
 			{			
-				ft_delstr(split_arg);
+				ft_delstr(split_arg); ft_putstr_fd("yeee\n", 2);
 			}			
 			if (j == -1)
 			{ 				
-				ft_addstr(split_arg, res);
+				ft_addstr(split_arg, res); ft_putstr_fd("yooo\n", 2);
 				break;
 			}
 			split_arg++;
@@ -188,7 +189,7 @@ void	join_simplequoteok(char **split_arg)
 		{
 			while (*split_arg == *start && j--)
 			{			
-				ft_delstr(split_arg);
+				ft_delstr(split_arg); 
 			}			
 			if (j == -1)
 			{ 				
@@ -336,11 +337,7 @@ char	**parse_cmd(char *argv[], char *envp[], t_cmd *cmds, int fd_file[])
 			free(split_arg[i++]);
 		free(split_arg);
 		while((--cmds)->pid)
-		{		
-			;//ft_putstr_fd(ft_itoa(cmds->pid), 2);
-		}
-	//	ft_putstr_fd("\n", 2);
-	//	ft_putstr_fd(ft_itoa(cmds->pid), 2);
+			;
 		free(cmds);
 		return (exit(1), NULL);
 	}	
@@ -517,6 +514,8 @@ int	main(int argc, char *argv[], char *envp[])
 	int status;
 	pid_t wait_res;	
 	free(cmds);
+	while (wait(&status) > 0) 
+		;
 	// while (1)
 	// {
 	// 	while ((++cmds)->pid)
