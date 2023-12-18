@@ -6,7 +6,7 @@
 /*   By: seblin <seblin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/06 11:14:52 by svidot            #+#    #+#             */
-/*   Updated: 2023/12/16 22:33:27 by seblin           ###   ########.fr       */
+/*   Updated: 2023/12/17 09:13:00 by seblin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -296,10 +296,10 @@ char	**parse_cmd(char *argv[], char *envp[], t_cmd *cmds, int fd_file[])
 		free(split_arg);
 		while((--cmds)->pid)
 		{		
-			ft_putstr_fd(ft_itoa(cmds->pid), 2);
+			;//ft_putstr_fd(ft_itoa(cmds->pid), 2);
 		}
-		ft_putstr_fd("\n", 2);
-		ft_putstr_fd(ft_itoa(cmds->pid), 2);
+	//	ft_putstr_fd("\n", 2);
+	//	ft_putstr_fd(ft_itoa(cmds->pid), 2);
 		free(cmds);
 		return (exit(1), NULL);
 	}	
