@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: seblin <seblin@student.42.fr>              +#+  +:+       +#+        */
+/*   By: svidot <svidot@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/06 11:14:52 by svidot            #+#    #+#             */
-/*   Updated: 2023/12/17 09:13:00 by seblin           ###   ########.fr       */
+/*   Updated: 2023/12/18 15:26:20 by svidot           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,22 +29,6 @@ typedef struct s_cmd
 	char	*path;
 } t_cmd;
 
-void	set_filepaths_hd(int argc, char **argv[], char *filepaths[])
-{
-	filepaths[0] = *(++*argv);
-	filepaths[1] = (*argv)[argc - 3];
-}
-
-void	set_cmd(char **cmd_arr, char *argv[])
-{
-	int	n_cmd;
-	
-	n_cmd = -1;	
-	while (*argv++)
-		n_cmd++;
-	//malloc
-	ft_printf("filepath2:%d\n", n_cmd);
-}
 
 void	set_pipe_forward(int pipefd_in[], int pipefd_out[]) 
 {			
@@ -118,12 +102,12 @@ void	join_simplequote(char **split_arg)
 	end = NULL;	
 	while (*split_arg)
 	{
-		if (**split_arg == '\'')
+		if (**split_arg == '\'' || **split_arg == '\"')
 		{			
 			ft_delchar(*split_arg);
 			start = split_arg;
 		}
-		if (*(*split_arg + ft_strlen(*split_arg) - 1) == '\'')
+		if (*(*split_arg + ft_strlen(*split_arg) - 1) == '\'' || *(*split_arg + ft_strlen(*split_arg) - 1) == '\"')
 		{	
 			ft_delchar(*split_arg + ft_strlen(*split_arg) - 1);			
 			end = split_arg;		
@@ -261,7 +245,7 @@ char	**parse_cmd(char *argv[], char *envp[], t_cmd *cmds, int fd_file[])
 	if (!env_find)
 		return (perror("env Path not found"), exit(1), NULL);
 	split_arg = ft_split(*argv, ' ');	
-	//join_simplequote(split_arg);	
+	join_simplequote(split_arg);	
 	env_find += ft_strlen(env_to_find);
 	split_colon = ft_split(env_find, ':');
 	split_colon_sav = split_colon;
@@ -372,123 +356,12 @@ void	nurcery(char *argv[], char *envp[], int fd_file[], int flag, t_cmd *cmds) /
 	close(fd_file[1]); //et free cmds
 }
 
-void	nurcery2(int argc, char *argv[], char *envp[], int fd_file[])
-{
-	pid_t 	pid;
-	int		pipefd_1[2];
-	int		pipefd_2[2];
-	int		pipefd_3[2];
-	
-	if (pipe(pipefd_1) < 0)                              // 1er pipe
-	{
-		perror("pipe");
-		exit(EXIT_FAILURE);
-	}
-	if (pipe(pipefd_2) < 0)
-	{
-		perror("pipe");
-		exit(EXIT_FAILURE);
-	}
-	if (pipe(pipefd_3) < 0)
-	{
-		perror("pipe");
-		exit(EXIT_FAILURE);
-	}
-	//dup2( fd_file[0], )
-	pipefd_1[0] = fd_file[0];
-	//ft_putstr_fd("la reponse est la quelque part, elle te cherche aussi\n", pipefd_1[1]);
-	//close(pipefd_1[1]);
-	pid = fork();		
-	if (pid == 0)
-	{	
-		close(pipefd_3[0]);	
-		close(pipefd_3[1]);					// enf 1
-		set_pipe_forward(pipefd_1, pipefd_2);							// 2eme pipe
-		execve("/bin/rev", (char *[]) {"rev", NULL}, envp);  
-	}
-	else
-	{
-		close(pipefd_1[0]);
-		close(pipefd_2[1]);	                             // parent
-		pid = fork();
-		if (pid == 0)								// enf 2
-		{
-			close(pipefd_1[0]);
-			close(pipefd_1[1]);	
-			ft_putstr_fd("LA2\n", 2);
-			set_pipe_forward(pipefd_2, fd_file);			// 3eme pipe
-			execve("/bin/rev", (char *[]) {"rev", NULL}, envp); 
-		}
-		else
-		{											 // parent
-			char buf;
-			close(pipefd_2[0]);
-			close(pipefd_3[1]);		
-			while (read(pipefd_3[0], &buf, 1))
-				ft_putchar_fd(buf, 1);
-			close(pipefd_3[0]);			
-		}	
-	}
-}
-void	child_area(pid_t pid, int pipefd[], char *envp[])
-{	
-	ft_printf("je suis ton fils, mon nom est: %d\n", pid);
-	ft_putstr_fd("la reponse est la quelque part, elle te cherche aussi\n", pipefd[1]);
-	
-	dup2(pipefd[0], STDIN_FILENO);
-	//dup2(pipefd[1], STDOUT_FILENO);
-	close(pipefd[0]);
-	//close(pipefd[1]);
-	if (execve("/bin/cat", (char *[]) {"rev", NULL}, envp))
-		perror("error execve");
-	ft_printf("je suis ta soeur: %d\n", pid);
-}
-
-void	parent_area(pid_t pid, int pipefd[])
-{
-	char	buf;
-	
-	ft_printf("je suis ton pere, ton nom est: %d\n", pid);
-	
-	// while (read(pipefd[0], &buf, 1))
-	// ft_putchar_fd(buf, 1);
-	// close(pipefd[0]);
-}
-
 void	set_filepaths(int *argc, char **argv[], char *filepaths[])
 {
 	filepaths[0] = *(++*argv);
 	filepaths[1] = (*argv)[*argc - 2];
 }
 
-void	file_acces_handle2(int flag, char *filepaths[], int fd_file[])
-{
-	char	*error_str;
-		//ft_printf("where is my seg fault\n");	
-	error_str = "";
-	if (!flag)
-	{
-		if (access(filepaths[0], F_OK))		
-			error_str = ft_strjoin(error_str, ft_strjoin((ft_strjoin(ft_strjoin(strerror(errno), ": "), filepaths[0])), "\n"));
-		
-		else if (access(filepaths[0], R_OK))		
-			error_str = ft_strjoin(error_str, ft_strjoin((ft_strjoin(ft_strjoin(strerror(errno), ": "), filepaths[0])), "\n"));
-		
-		fd_file[0] = open(filepaths[0], O_RDONLY);
-		if (!access(filepaths[1], F_OK) && access(filepaths[1], W_OK))	
-			error_str = ft_strjoin(error_str, ft_strjoin((ft_strjoin(ft_strjoin(strerror(errno), ": "), filepaths[1])), "\n"));
-		fd_file[1] = open(filepaths[1], O_WRONLY | O_CREAT | O_TRUNC, 400);
-	}
-	else
-	{
-		fd_file[0] = -1;
-		if (!access(filepaths[1], F_OK) && access(filepaths[1], W_OK))	
-			error_str = ft_strjoin(error_str, ft_strjoin((ft_strjoin(ft_strjoin(strerror(errno), ": "), filepaths[1])), "\n"));
-		fd_file[1] = open(filepaths[1], O_WRONLY | O_CREAT | O_APPEND, 400);
-	}
-	if (*error_str)
-		return (ft_putstr_fd(error_str, STDERR_FILENO), exit(EXIT_FAILURE));		
-}
 
 void	free_error_str(char *s)
 {
@@ -501,77 +374,6 @@ void	close_fd(int fd_file[])
 		close(fd_file[0]); // gerer -1
 	if (fd_file[1] >= 0)	
 		close(fd_file[1]); // gerer -1
-}
-
-void	get_fdiotab(int flag, char *filepaths[], int fd_file[])
-{
-	char	*ptr[3][4];
-	char *(*error_str)[4] = ptr; 
-	char *(*error_str2)[4] = ptr; 
-	int	i;
-	int	j;
-	
-	//error_str = err_str;
-	i = -1;
-	while (++i < 3)
-	{
-		j = -1;		
-		while (++j < 4)
-		{		
-			ptr[i][j] = NULL;
-			error_str2[i][j] = NULL;
-			error_str[i][j] = NULL;			
-		}
-	}
-	//ptr[2] = NULL;
-	if (!flag)
-	{	
-		fd_file[0] = open(filepaths[0], O_RDONLY);
-		if (fd_file[0] < 0)	
-		{
-			(*error_str)[0] = ft_strdup(strerror(errno));
-			(*error_str)[1] = ": ";
-			(*error_str)[2] = filepaths[0];
-			(*error_str++)[3] = "\n";				
-		}	
-		fd_file[1] = open(filepaths[1], O_WRONLY | O_CREAT | O_TRUNC, 400);
-		if (fd_file[1] < 0)			
-		{
-			(*error_str)[0] = ft_strdup(strerror(errno));
-			(*error_str)[1] = ": ";
-			(*error_str)[2] = filepaths[1];
-			(*error_str++)[3] = "\n";	
-					
-		}	
-	}
-	else
-	{
-		fd_file[0] = -1;
-		fd_file[1] = open(filepaths[1], O_WRONLY | O_CREAT | O_APPEND, 400);		
-		if (fd_file[1] < 0)			
-		{
-			(*error_str)[0] = ft_strdup(strerror(errno));
-			(*error_str)[1] = ": ";
-			(*error_str)[2] = filepaths[1];
-			(*error_str)[3] = "\n";	
-			//(*error_str)[4] = NULL;					
-		}				
-	}
-	error_str = error_str2;
-
-	while (*error_str[0])	
-	{ft_printf("err: %s\n", **error_str);
-		i = 0;
-		while (i < 4)	
-			ft_putstr_fd((*error_str)[i++], STDERR_FILENO);	
-		error_str++;	
-	
-	}
-	if (error_str2[0][0])
-		free(error_str2[0][0]);
-	if (error_str2[1][0])
-		free(error_str2[1][0]);
-	return (close_fd(fd_file), exit(EXIT_FAILURE));	
 }
 
 void	get_fdio(int flag, char *filepaths[], int fd_file[])
@@ -626,31 +428,6 @@ void	get_fdio(int flag, char *filepaths[], int fd_file[])
 	}
 	if (*error_str)
 		return (ft_putstr_fd(error_str, STDERR_FILENO), free_error_str(error_str), close_fd(fd_file), exit(EXIT_FAILURE));	// gerer ft_putstr_fd(write) et close
-}
-
-void	get_fdio2(int flag, char *filepaths[], int fd_file[])
-{
-	char	*error_str;
-	
-	error_str = "";
-	if (!flag)
-	{	
-		fd_file[0] = open(filepaths[0], O_RDONLY);
-		if (fd_file[0] < 0)			
-			error_str = ft_strjoin(error_str, ft_strjoin(ft_strjoin(ft_strjoin(strerror(errno), ": "), filepaths[0]), "\n"));		
-		fd_file[1] = open(filepaths[1], O_WRONLY | O_CREAT | O_TRUNC, 400);
-		if (fd_file[1] < 0)			
-			error_str = ft_strjoin(error_str, ft_strjoin(ft_strjoin(ft_strjoin(strerror(errno), ": "), filepaths[1]), "\n"));	
-	}
-	else
-	{
-		fd_file[0] = -1;
-		fd_file[1] = open(filepaths[1], O_WRONLY | O_CREAT | O_APPEND, 400);                                                                    
-		if (fd_file[1] < 0)		
-			error_str = ft_strjoin(error_str, ft_strjoin(ft_strjoin(ft_strjoin(strerror(errno), ": "), filepaths[1]), "\n"));				
-	}
-	if (*error_str)
-		return (ft_putstr_fd(error_str, STDERR_FILENO), free_error_str(error_str), close_fd(fd_file), exit(EXIT_FAILURE));	
 }
 
 t_cmd	*create_cmds(int argc, char *argv[])
