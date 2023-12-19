@@ -6,7 +6,7 @@
 /*   By: svidot <svidot@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/06 11:14:52 by svidot            #+#    #+#             */
-/*   Updated: 2023/12/18 17:53:09 by svidot           ###   ########.fr       */
+/*   Updated: 2023/12/19 10:29:30 by svidot           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -280,7 +280,9 @@ void	join_simplequote2(char **split_arg)
 	}	
 }
 
-char	**parse_cmd(char *argv[], char *envp[], t_cmd *cmds, int fd_file[])
+
+
+char	**parse_cmdex(char *argv[], char *envp[], t_cmd *cmds, int fd_file[])
 {
 	char	**split_arg;
 	char	**split_colon;
@@ -302,7 +304,7 @@ char	**parse_cmd(char *argv[], char *envp[], t_cmd *cmds, int fd_file[])
 	if (!env_find)
 		return (perror("env Path not found"), exit(1), NULL);
 	split_arg = ft_split(*argv, ' ');	
-	join_simplequote(split_arg);	
+	//join_simplequote(split_arg);	
 	env_find += ft_strlen(env_to_find);
 	split_colon = ft_split(env_find, ':');
 	split_colon_sav = split_colon;
@@ -385,11 +387,9 @@ void	nurcery(char *argv[], char *envp[], int fd_file[], int flag, t_cmd *cmds) /
 		{		
 			set_pipe_forward(pipefd_in, pipefd_out);		// si ok fd_file [1], cmds				
 			char **split = parse_cmd(argv, envp, cmds, fd_file);			
-			if (execve(split[0], split, envp) < 0)
-			{
-				exit(EXIT_FAILURE);
-				// gerer errno -1, fd_file [1], cmds, et split	EXIT important sinon arbre!!!
-			}  
+			execve(split[0], split, envp);			
+			exit(EXIT_FAILURE);
+				// gerer errno -1, fd_file [1], cmds, et split	EXIT important sinon arbre!!!			 
 		}
 		else
 		{			// gerer les processus fils en cours ? 
