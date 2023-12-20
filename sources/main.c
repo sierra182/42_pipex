@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: svidot <svidot@student.42.fr>              +#+  +:+       +#+        */
+/*   By: seblin <seblin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/19 15:23:23 by svidot            #+#    #+#             */
-/*   Updated: 2023/12/19 15:23:29 by svidot           ###   ########.fr       */
+/*   Updated: 2023/12/20 09:10:18 by seblin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,14 +21,6 @@
 #include <stdlib.h>
 
 #include "get_next_line.h"
-
-typedef struct s_cmd
-{
-	int		pid;
-	char	*name;
-	char	*path;
-} t_cmd;
-
 
 void	set_pipe_forward(int pipefd_in[], int pipefd_out[]) 
 {			
@@ -56,7 +48,8 @@ void	here_doc_handle(char **argv[], int pipefd_in[])
 				ft_putstr_fd(line, pipefd_in[1]); // // gerer -1 errno close fd_file ?[0] [1] et free cmds et close pipefd_in ?[0] [1] et close pipefd_out [0] [1] et line et gnl(?)
 			else
 			{
-				free(line);  get_next_line(42); // !!!
+				free(line);  
+				get_next_line(42); // !!!
 				break ; // sortie normale line et gnl(?)
 			}
 		}
@@ -77,18 +70,18 @@ void	ft_delstr(char **arr)
 
 void	ft_addstr(char **arr, char *s)
 {
-	char	*temp;
-	char	*temp2;
+	char	*tmp;
+	char	*tmp2;
 	
-	temp = s;
+	tmp = s;
 	while (*arr)
 	{
-		temp2 = *arr;
-		*arr = temp;
-		temp = temp2;
+		tmp2 = *arr;
+		*arr = tmp;
+		tmp = tmp2;
 		arr++;
 	}
-	*arr++ = temp;
+	*arr++ = tmp;
 	arr = 0;
 }
 void	join_simplequote(char **split_arg)
@@ -149,141 +142,7 @@ void	join_simplequote(char **split_arg)
 	}	
 }
 
-void	join_simplequoteok(char **split_arg)
-{
-	char	**start;
-	char	**end;
-	char	**split_arg_save;
-	
-	split_arg_save = split_arg;
-	start = NULL;
-	end = NULL;	
-	while (*split_arg)
-	{
-		if (**split_arg == '\'' || **split_arg == '\"')
-		{			
-			ft_delchar(*split_arg);
-			start = split_arg;
-		}
-		if (*(*split_arg + ft_strlen(*split_arg) - 1) == '\'' || *(*split_arg + ft_strlen(*split_arg) - 1) == '\"')
-		{	
-			ft_delchar(*split_arg + ft_strlen(*split_arg) - 1);			
-			end = split_arg;		
-		}		
-		split_arg++;
-	}
-	if (start && end)
-	{		
-		char **temp;
-		char *res;
-		temp = start;
-		res = *start;
-		int j = 1;
-		while (*++temp && *temp <= *end)
-		{						
-			res = ft_strjoin(ft_strjoin(res, " "), *temp);
-			j++;
-		}		
-		split_arg = split_arg_save;
-		while (*split_arg)
-		{
-			while (*split_arg == *start && j--)
-			{			
-				ft_delstr(split_arg); 
-			}			
-			if (j == -1)
-			{ 				
-				ft_addstr(split_arg, res);
-				break;
-			}
-			split_arg++;
-		}	
-	}	
-}
-
-void	join_simplequote2(char **split_arg)
-{
-	char	**start;
-	char	**end;
-	char	**split_arg_save;
-	
-	split_arg_save = split_arg;
-	start = NULL;
-	end = NULL;	
-	while (*split_arg)
-	{
-		if (**split_arg == '\'')
-		{			
-			ft_delchar(*split_arg);
-			start = split_arg;
-		}
-		if (*(*split_arg + ft_strlen(*split_arg) - 1) == '\'')
-		{	
-			ft_delchar(*split_arg + ft_strlen(*split_arg) - 1);			
-			end = split_arg;		
-		}		
-		split_arg++;
-	}
-	if (start && end)
-	{
-		//ft_printf("we have champions, start : %s, end : %s\n", *start, *end);
-		char **temp;
-		char *res;
-		temp = start;
-		res = *start;
-		int j = 1;
-		while (*++temp && *temp <= *end)
-		{			
-			//ft_printf("we have a problem here: temp : %s\n", *temp);			
-			res = ft_strjoin(ft_strjoin(res, " "), *temp);
-			j++;
-		}
-		//ft_printf("bla, : -%s-\n", res);
-		
-		int i = 0;
-		while (split_arg_save[i])
-		{
-			//ft_printf("split arg save, : -%s-\n", split_arg_save[i++]);			
-		}
-		//ft_printf("\n");
-		split_arg = split_arg_save;
-		while (*split_arg)
-		{
-			while (*split_arg == *start && j--)
-			{
-				//ft_printf("houhou -%s-\n", *split_arg);
-				ft_delstr(split_arg);				
-			
-			}
-				i = 0;
-				while (split_arg[i])
-				{
-					//ft_printf("split arg lameme, : -%s-\n", split_arg[i++]);			
-				}
-			if (j == -1)
-			{ //ft_printf("j egal zero\n");				
-				i = 0;
-				while (split_arg[i])
-				{
-					//ft_printf("split arg lamemeYEEE, : -%s-\n", split_arg[i++]);			
-				}				
-				ft_addstr(split_arg, res);
-				break;
-			}
-			split_arg++;
-		}
-		i = 0;
-		while (split_arg_save[i])
-		{
-			//ft_printf("split arg save, : -%s-\n", split_arg_save[i++]);			
-		}
-		//ft_printf("we have ONE champions, : %s\n", start);
-	}	
-}
-
-
-
-char	**parse_cmdex(char *argv[], char *envp[], t_cmd *cmds, int fd_file[])
+char	**parse_cmd(char *argv[], char *envp[], int fd_file[])
 {
 	char	**split_arg;
 	char	**split_colon;
@@ -337,56 +196,26 @@ char	**parse_cmdex(char *argv[], char *envp[], t_cmd *cmds, int fd_file[])
 		i = 0;
 		while (split_arg[i])
 			free(split_arg[i++]);
-		free(split_arg);
-		while((--cmds)->pid)
-			;
-		free(cmds);
+		free(split_arg);	
 		return (exit(1), NULL);
 	}	
 	return (split_arg);
 }
 
-void	nurcery(char *argv[], char *envp[], int fd_file[], int flag, t_cmd *cmds) // pas oblg ?
+void	nurcery(char *argv[], char *envp[], int fd_file[], int	pipefd_in[2], int pipefd_out[2])
 {
 	pid_t 	pid;
-	int		pipefd_in[2];
-	int		pipefd_out[2];
-	char	buf;
-	int 	status;
+	char 	**split;
 	
-	if (pipe(pipefd_in) < 0)                              
-	{
-		perror("pipefd_in"); // close fd_file ?-1[0] [1] et free cmds
-		exit(EXIT_FAILURE);
-	}
-	if (pipe(pipefd_out) < 0)
-	{
-		perror("pipefd_out");	// close fd_file ?-1[0] [1] et free cmds et close pipefd_in [0] [1]
-		exit(EXIT_FAILURE);
-	}
-	if (!flag)
-	{
-		close(pipefd_in[0]); // gerer -1 errno close fd_file ?-1[0] [1] et free cmds et close pipefd_in [1] et close pipefd_out [0] [1] 
-		pipefd_in[0] = fd_file[0];	
-	}
-	if (flag)	
-		here_doc_handle(&argv, pipefd_in); // si ok close fd_file [1] et free cmds et close pipefd_in [0] [1] et close pipefd_out [0] [1]
-	int	i;
-	i = 0;	
 	while(*(++argv + 1))
 	{	
-		(++cmds)->pid = fork();
-		if (cmds->pid < 0)		
-		{
-			;//gerer -1 errno close fd_file [1] et free cmds et close pipefd_in [0] [1] et close pipefd_out [0] [1]
-		}
-		if (cmds->pid == 0)
+		pid = fork();	
+		if (pid == 0)
 		{		
 			set_pipe_forward(pipefd_in, pipefd_out);		// si ok fd_file [1], cmds				
-			char **split = parse_cmd(argv, envp, cmds, fd_file);			
+			split = parse_cmd(argv, envp, fd_file);			
 			execve(split[0], split, envp);			
-			exit(EXIT_FAILURE);
-				// gerer errno -1, fd_file [1], cmds, et split	EXIT important sinon arbre!!!			 
+			exit(EXIT_FAILURE); // gerer errno -1, fd_file [1], cmds, et split	EXIT important sinon arbre!!!							 
 		}
 		else
 		{			// gerer les processus fils en cours ? 
@@ -394,13 +223,28 @@ void	nurcery(char *argv[], char *envp[], int fd_file[], int flag, t_cmd *cmds) /
 			close(pipefd_in[0]); //gerer -1 errno close fd_file [1] et free cmds et close pipefd_out [0] [1]
 			pipefd_in[0] = pipefd_out[0];
 			pipefd_in[1] = pipefd_out[1];
-			if (pipe(pipefd_out) < 0) 
-			{
-				perror("pipe");      // gerer -1 errno close fd_file [1] et free cmds et close pipefd_in [0] [1] 
-				exit(EXIT_FAILURE); 
-			}	   		
+			pipe(pipefd_out);	   		
 		}
 	}
+}
+
+void	create_pipeline(char *argv[], char *envp[], int fd_file[], int flag) // pas oblg ?
+{	
+	int		pipefd_in[2];
+	int		pipefd_out[2];
+	char	buf;
+	int 	status;
+	
+	pipe(pipefd_in); 
+	pipe(pipefd_out);
+	if (!flag)
+	{
+		close(pipefd_in[0]); // gerer -1 errno close fd_file ?-1[0] [1] et free cmds et close pipefd_in [1] et close pipefd_out [0] [1] 
+		pipefd_in[0] = fd_file[0];	
+	}
+	if (flag)	
+		here_doc_handle(&argv, pipefd_in); // si ok close fd_file [1] et free cmds et close pipefd_in [0] [1] et close pipefd_out [0] [1]
+	nurcery(argv, envp, fd_file, pipefd_in, pipefd_out);
 	close(pipefd_in[1]); //gerer -1 errno close fd_file [1] et close pipefd_in [0] et close pipefd_out [0] [1] et free cmds
 	close(pipefd_out[1]); //gerer -1 errno close fd_file [1] et close pipefd_in [0] et close pipefd_out [0] et free cmds
 	close(pipefd_out[0]); //gerer -1 errno close fd_file [1] et close pipefd_in [0] et free cmds
@@ -416,12 +260,6 @@ void	set_filepaths(int *argc, char **argv[], char *filepaths[])
 	filepaths[1] = (*argv)[*argc - 2];
 }
 
-
-void	free_error_str(char *s)
-{
-	free(s);
-}
-
 void	close_fd(int fd_file[])
 {
 	if (fd_file[0] >= 0)
@@ -429,7 +267,27 @@ void	close_fd(int fd_file[])
 	if (fd_file[1] >= 0)	
 		close(fd_file[1]); // gerer -1
 }
-
+char	*create_strerror(char *error_str, char *filepaths[])
+{
+	char	*tmp;
+	char	*tmp2;
+	char	*tmp3;
+	char	*tmp4;
+	
+	tmp = ft_strjoin(strerror(errno), ": "); // gerer le NULL free error_str si aloué et close fd_file[0] si supp a -1
+	tmp2 = ft_strjoin(tmp, filepaths[1]); // gerer le NULL: free s1 et error_str si aloué et fd_file[0] si supp a -1
+	tmp3 = ft_strjoin(tmp2, "\n"); // gerer le NULL: free s1 et s2 et error_str si aloué et fd_file[0] si supp a -1
+	tmp4 = NULL;
+	if (*error_str)
+		tmp4 = error_str;
+	error_str = ft_strjoin(error_str, tmp3); // gerer le NULL: free s1 et s2 et s3 et s4 ou error_str si aloué et fd_file[0] si supp a -1
+	free(tmp);
+	free(tmp2);
+	free(tmp3);
+	if (tmp4)	
+		free(tmp4);
+	return (error_str);
+}
 void	get_fdio(int flag, char *filepaths[], int fd_file[])
 {
 	char	*error_str;
@@ -438,65 +296,30 @@ void	get_fdio(int flag, char *filepaths[], int fd_file[])
 	if (!flag)
 	{	
 		fd_file[0] = open(filepaths[0], O_RDONLY);
-		if (fd_file[0] < 0)
-		{
-			char *s1 = ft_strjoin(strerror(errno), ": "); // gerer le NULL
-			char *s2 = ft_strjoin(s1, filepaths[0]); // gerer le NULL: free s1
-			char *s3 = ft_strjoin(s2, "\n"); // gerer le NULL: free s1 et s2
-			error_str = ft_strjoin(error_str, s3); // gerer le NULL free s1 s2 s3
-			free(s1); // pas de retour derreur mais penser a mettre NULL...
-			free(s2);
-			free(s3);			
-		}	
+		if (fd_file[0] < 0)		
+			error_str = create_strerror(error_str, filepaths);		
 		fd_file[1] = open(filepaths[1], O_WRONLY | O_CREAT | O_TRUNC, 400);
-		if (fd_file[1] < 0)			
-		{
-			char *s1 = ft_strjoin(strerror(errno), ": "); // gerer le NULL free error_str si aloué et close fd_file[0] si supp a -1
-			char *s2 = ft_strjoin(s1, filepaths[1]); // gerer le NULL: free s1 et error_str si aloué et fd_file[0] si supp a -1
-			char *s3 = ft_strjoin(s2, "\n"); // gerer le NULL: free s1 et s2 et error_str si aloué et fd_file[0] si supp a -1
-			char *s4 = NULL;
-			if (*error_str)
-				s4 = error_str;
-			error_str = ft_strjoin(error_str, s3); // gerer le NULL: free s1 et s2 et s3 et s4 ou error_str si aloué et fd_file[0] si supp a -1
-			free(s1);
-			free(s2);
-			free(s3);
-			if (s4)	
-				free(s4);
-		}	
+		if (fd_file[1] < 0)
+			error_str = create_strerror(error_str, filepaths);		
 	}
 	else
 	{
 		fd_file[0] = -1;
 		fd_file[1] = open(filepaths[1], O_WRONLY | O_CREAT | O_APPEND, 400);		
 		if (fd_file[1] < 0)			
-		{
-			char *s1 = ft_strjoin(strerror(errno), ": "); // gerer le NULL 
-			char *s2 = ft_strjoin(s1, filepaths[1]); // gerer le NULL: free s1 
-			char *s3 = ft_strjoin(s2, "\n"); // gerer le NULL: free s1 et s2
-			error_str = ft_strjoin(error_str, s3);	// gerer le NULL free s1 s2 s3
-			free(s1);
-			free(s2);
-			free(s3);
-		}				
+			error_str = create_strerror(error_str, filepaths);				
 	}
 	if (*error_str)
-		return (ft_putstr_fd(error_str, STDERR_FILENO), free_error_str(error_str), close_fd(fd_file), exit(EXIT_FAILURE));	// gerer ft_putstr_fd(write) et close
+		return (ft_putstr_fd(error_str, STDERR_FILENO), free(error_str),
+			close_fd(fd_file), exit(EXIT_FAILURE));	// gerer ft_putstr_fd(write) et close
 }
 
-t_cmd	*create_cmds(int argc, char *argv[])
-{
-	t_cmd	*cmds;
-
-	cmds = (t_cmd *) ft_calloc(argc - 1, sizeof(t_cmd)); // si NULL close fd_file [1] et ?[0]	
-	return (cmds);
-}
 int	main(int argc, char *argv[], char *envp[])
 {
 	char	*filepaths[2];
 	int		fd_file[2];	
-	t_cmd	*cmds;
 	int		flag;
+	int 	status;
 	
 	flag = 0;
 	if (!ft_strcmp(*(argv + 1), "here_doc"))
@@ -508,42 +331,10 @@ int	main(int argc, char *argv[], char *envp[])
 	if (argc <= 4)
 		return (1);
 	set_filepaths(&argc, &argv, filepaths);
-	get_fdio(flag, filepaths, fd_file);
-	cmds = create_cmds(argc, argv);
-	nurcery(argv, envp, fd_file, flag, cmds);
-	int status;
-	pid_t wait_res;	
-	free(cmds);
+	get_fdio(flag, filepaths, fd_file);	
+	create_pipeline(argv, envp, fd_file, flag);
 	while (wait(&status) > 0) 
-		;
-	// while (1)
-	// {
-	// 	while ((++cmds)->pid)
-	// 	{
-	// 		//ft_printf("pids coms:%d\n", cmds->pid);
-	// 		wait_res = waitpid(cmds->pid, &status, WNOHANG);
-	// 		if (wait_res < 0)
-	// 		{ 
-	// 			;// if < 0 erreur de waitpid		free cmds	                                                                                                                                                                                                                                                                                                                                                   
-	// 		}
-	// 		else if (wait_res > 0)
-	// 		{
-	// 			if (WIFEXITED(status))
-	// 			{
-	// 				int exit_status = WEXITSTATUS(status);
-	// 				ft_printf("le processus :%d s'est terminé correctement avec le status %d\n", cmds->pid, exit_status); 
-	// 			}
-	// 			else if (WIFSIGNALED(status))
-	// 			{
-	// 				int term_sig = WTERMSIG(status);
-	// 				ft_printf("le processus :%d s'est terminé par un crash avec le status %d\n", cmds->pid, term_sig); 
-	// 			}
-	// 		}
-	// 	}
-	// 	while ((--cmds)->pid)
-	// 		;
-	// }
-
+		;	
 	return (0);
 }
 
