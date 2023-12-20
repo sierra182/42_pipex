@@ -6,7 +6,7 @@
 /*   By: svidot <svidot@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/19 15:23:23 by svidot            #+#    #+#             */
-/*   Updated: 2023/12/20 13:06:44 by svidot           ###   ########.fr       */
+/*   Updated: 2023/12/20 14:26:17 by svidot           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,7 @@ char	**parse_cmd(char *argv[], char *envp[], int fd_file[]);
 void	set_filepaths(int *argc, char **argv[], char *filepaths[]);
 void	get_fdio(int flag, char *filepaths[], int fd_file[]);
 
-void	set_pipe_forward(int pipefd_in[], int pipefd_out[]) 
+void	set_pipe_forward(int pipefd_in[], int pipefd_out[])
 {			
 	dup2(pipefd_in[0], STDIN_FILENO); // si -1 errno fd_file [1] pipefd_in[0][1] pipefd_out [0][1] cmds
 	close(pipefd_in[0]); //  si -1 errno fd_file [1] pipefd_in[1] pipefd_out [0][1] cmds
@@ -39,6 +39,32 @@ void	set_pipe_forward(int pipefd_in[], int pipefd_out[])
 	dup2(pipefd_out[1], STDOUT_FILENO);	//  si -1 errno fd_file [1] pipefd_out [0][1] cmds
 	close(pipefd_out[1]); //  si -1 errno fd_file [1] pipefd_out [0] cmds
 	close(pipefd_out[0]);  //  si -1 errno fd_file [1] cmds
+}
+
+void	nurcery(char *argv[], char *envp[], int fd_file[], int	pipefd_in[2], int pipefd_out[2])
+{
+	pid_t 	pid;
+	char 	**split;
+	
+	while(*(++argv + 1))
+	{	
+		pid = fork();	
+		if (pid == 0)
+		{		
+			set_pipe_forward(pipefd_in, pipefd_out);		// si ok fd_file [1], cmds				
+			split = parse_cmd(argv, envp, fd_file);			
+			execve(split[0], split, envp);			
+			exit(EXIT_FAILURE); // gerer errno -1, fd_file [1], cmds, et split	EXIT important sinon arbre!!!							 
+		}
+		else
+		{			// gerer les processus fils en cours ? 
+			close(pipefd_in[1]); //gerer -1 errno close fd_file [1] et free cmds et close pipefd_in [0] et close pipefd_out [0] [1]
+			close(pipefd_in[0]); //gerer -1 errno close fd_file [1] et free cmds et close pipefd_out [0] [1]
+			pipefd_in[0] = pipefd_out[0];
+			pipefd_in[1] = pipefd_out[1];
+			pipe(pipefd_out);	   		
+		}
+	}
 }
 
 void	here_doc_handle(char **argv[], int pipefd_in[])
@@ -68,31 +94,6 @@ void	here_doc_handle(char **argv[], int pipefd_in[])
 	}	
 }
 
-void	nurcery(char *argv[], char *envp[], int fd_file[], int	pipefd_in[2], int pipefd_out[2])
-{
-	pid_t 	pid;
-	char 	**split;
-	
-	while(*(++argv + 1))
-	{	
-		pid = fork();	
-		if (pid == 0)
-		{		
-			set_pipe_forward(pipefd_in, pipefd_out);		// si ok fd_file [1], cmds				
-			split = parse_cmd(argv, envp, fd_file);			
-			execve(split[0], split, envp);			
-			exit(EXIT_FAILURE); // gerer errno -1, fd_file [1], cmds, et split	EXIT important sinon arbre!!!							 
-		}
-		else
-		{			// gerer les processus fils en cours ? 
-			close(pipefd_in[1]); //gerer -1 errno close fd_file [1] et free cmds et close pipefd_in [0] et close pipefd_out [0] [1]
-			close(pipefd_in[0]); //gerer -1 errno close fd_file [1] et free cmds et close pipefd_out [0] [1]
-			pipefd_in[0] = pipefd_out[0];
-			pipefd_in[1] = pipefd_out[1];
-			pipe(pipefd_out);	   		
-		}
-	}
-}
 
 void	create_pipeline(char *argv[], char *envp[], int fd_file[], int flag)
 {	
@@ -117,7 +118,7 @@ void	create_pipeline(char *argv[], char *envp[], int fd_file[], int flag)
 	while (read(pipefd_in[0], &buf, 1)) //gerer -1 errno close fd_file [1] et close pipefd_in [0] et free cmds
 		ft_putchar_fd(buf, fd_file[1]); //gerer -1 errno close fd_file [1] et close pipefd_in [0] et free cmds
 	close(pipefd_in[0]);  //gerer -1 errno close fd_file [1] et free cmds
-	close(fd_file[1]); //et free cmds		
+	close(fd_file[1]); //et free cmds	
 }
 
 int	main(int argc, char *argv[], char *envp[])
@@ -134,7 +135,7 @@ int	main(int argc, char *argv[], char *envp[])
 		argc--; 
 		flag = 1;
 	}
-	if (argc <= 4)
+	if (argc != 5 && !BONUS || argc <= 4 && BONUS)
 		return (1);
 	set_filepaths(&argc, &argv, filepaths);
 	get_fdio(flag, filepaths, fd_file);	
