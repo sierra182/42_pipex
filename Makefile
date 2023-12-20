@@ -18,10 +18,10 @@ SRC_DIR = sources
 CC = cc
 CFLAGS = -I$(HEADERS_DIR) -I$(LIBFT_DIR) -I$(FT_PRINTF_DIR) #-Wall -Wextra -Werror
 LDFLAGS = $(FT_PRINTF_DIR)/libftprintf.a
-SOURCES = $(SRC_DIR)/main.c 
-OBJECTS = $(SOURCES:.c=.o)
+SOURCES = $(SRC_DIR)/main.c $(SRC_DIR)/setup.c $(SRC_DIR)/parsing.c 
+OBJECTS = $(SOURCES:.c=.o) 
 NAME = pipex
-
+NAME_BONUS = p#$(NAME)
 BONUS_DIR = bonus
 GNL_DIR = $(BONUS_DIR)/gnl
 CFLAGS_BONUS = -I$(GNL_DIR)
@@ -45,7 +45,7 @@ l :ft_printf $(NAME) emoticon
 
 $(NAME) : $(OBJECTS) 
 	@echo "\n\033[0;32m linking $(NAME) objects with $(LDFLAGS)...\033[0m 🚀\n"
-	@$(CC) $(OBJECTS) $(OBJECTS_BONUS) $(LDFLAGS) -o $@
+	@$(CC) $(OBJECTS) $(LDFLAGS) -o $@
 	
 intro:
 	clear
@@ -84,7 +84,7 @@ bonus : ft_printf $(NAME_BONUS)
 
 $(NAME_BONUS) : $(OBJECTS_BONUS) 
 	@echo "\n\033[0;32m linking $(NAME) objects bonus with $(LDFLAGS)...\033[0m 🚀\n"
-	@$(CC) $(OBJECTS_BONUS) $(LDFLAGS) -o $@
+	@$(CC) $(OBJECTS) $(OBJECTS_BONUS) $(LDFLAGS) -o $@
 
 clean :
 	@echo "\n cleanning $(NAME) objects 🧻"
