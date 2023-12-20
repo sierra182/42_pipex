@@ -6,7 +6,7 @@
 /*   By: svidot <svidot@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/19 15:23:23 by svidot            #+#    #+#             */
-/*   Updated: 2023/12/20 14:26:17 by svidot           ###   ########.fr       */
+/*   Updated: 2023/12/20 15:49:27 by svidot           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,7 @@
 #define BONUS 0
 #ifdef EN_BONUS
 # include "get_next_line.h"
+# undef BONUS
 # define BONUS 1
 #endif
 
@@ -66,6 +67,7 @@ void	nurcery(char *argv[], char *envp[], int fd_file[], int	pipefd_in[2], int pi
 		}
 	}
 }
+#ifdef EN_BONUS
 
 void	here_doc_handle(char **argv[], int pipefd_in[])
 {
@@ -94,14 +96,23 @@ void	here_doc_handle(char **argv[], int pipefd_in[])
 	}	
 }
 
+#else
+
+void	here_doc_handle(char **argv[], int pipefd_in[])
+{
+	ft_printf("MYERROR\n");
+	(void) argv;
+	(void) pipefd_in;
+}
+
+#endif
 
 void	create_pipeline(char *argv[], char *envp[], int fd_file[], int flag)
 {	
 	int		pipefd_in[2]; // pas oblg ?
 	int		pipefd_out[2];
 	char	buf;
-	int 	status;
-	
+		
 	pipe(pipefd_in); 
 	pipe(pipefd_out);	
 	if (!flag)
@@ -126,8 +137,7 @@ int	main(int argc, char *argv[], char *envp[])
 	char	*filepaths[2];
 	int		fd_file[2];	
 	int		flag;
-	int 	status;
-
+	
 	flag = 0;	
 	if (!ft_strcmp(*(argv + 1), "here_doc") && BONUS)
 	{
@@ -135,12 +145,12 @@ int	main(int argc, char *argv[], char *envp[])
 		argc--; 
 		flag = 1;
 	}
-	if (argc != 5 && !BONUS || argc <= 4 && BONUS)
+	if ((argc != 5 && !BONUS) || (argc <= 4 && BONUS))
 		return (1);
 	set_filepaths(&argc, &argv, filepaths);
 	get_fdio(flag, filepaths, fd_file);	
 	create_pipeline(argv, envp, fd_file, flag);
-	while (wait(&status) > 0) 
+	while (wait(&(int){0}) > 0) 
 		;	
 	return (0);
 }

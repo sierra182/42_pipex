@@ -16,7 +16,7 @@ HEADERS_DIR = include
 SRC_DIR = sources
 
 CC = cc
-CFLAGS = -I$(HEADERS_DIR) -I$(LIBFT_DIR) -I$(FT_PRINTF_DIR) #-Wall -Wextra -Werror
+CFLAGS = -I$(HEADERS_DIR) -I$(LIBFT_DIR) -I$(FT_PRINTF_DIR) -Wall -Wextra -Werror
 LDFLAGS = $(FT_PRINTF_DIR)/libftprintf.a
 SOURCES = $(SRC_DIR)/main.c $(SRC_DIR)/setup.c $(SRC_DIR)/parsing.c 
 OBJECTS = $(SOURCES:.c=.o) 
@@ -33,10 +33,10 @@ HEADERS = $(FT_PRINTF_DIR)/ft_printf.h $(LIBFT_DIR)/libft.h
 
 $(SRC_DIR)/%.o : $(SRC_DIR)/%.c $(LDFLAGS) $(HEADERS)
 	@echo "\033[0;32m compiling $(NAME) object $<...\033[0m" 🚀
-	@$(CC) $(CFLAGS) $(CFLAGS_BONUS) $< -c -o $@
+	@$(CC) $(CFLAGS) $< -c -o $@
 	
 $(BONUS_DIR)/%.o : $(BONUS_DIR)/%.c $(LDFLAGS) $(HEADERS_BONUS)
-	@echo "\033[0;32m compiling push_swap object bonus $<...\033[0m" 🚀
+	@echo "\033[0;32m compiling push_swap object bonus $<...\033[0m" 🚀	
 	@$(CC) $(CFLAGS) $(CFLAGS_BONUS) $< -c -o $@	
 
 all : intro ft_printf $(NAME) emoticon		
