@@ -6,7 +6,7 @@
 /*   By: svidot <svidot@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/20 10:45:59 by svidot            #+#    #+#             */
-/*   Updated: 2023/12/21 13:50:49 by svidot           ###   ########.fr       */
+/*   Updated: 2023/12/21 14:35:54 by svidot           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,12 +20,10 @@
 
 #ifndef EN_BONUS
 
-void	here_doc_handle(char **argv[], int pipefd_in[], int pipefd_out[], int fd_file[])
+void	here_doc_handle(char **argv[], int pipefd_in[])
 {	
 	(void) argv;
 	(void) pipefd_in;
-	(void) pipefd_out;
-	(void) fd_file;
 }
 
 #endif

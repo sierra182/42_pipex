@@ -6,7 +6,7 @@
 /*   By: svidot <svidot@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/19 15:23:23 by svidot            #+#    #+#             */
-/*   Updated: 2023/12/21 13:53:25 by svidot           ###   ########.fr       */
+/*   Updated: 2023/12/21 14:46:05 by svidot           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,7 @@ char	**parse_cmd(char *argv[], char *envp[], int fd_file[]);
 
 void	set_filepaths(int *argc, char **argv[], char *filepaths[]);
 void	get_fdio(int flag, char *filepaths[], int fd_file[]);
-void	here_doc_handle(char **argv[], int pipefd_in[], int pipefd_out[], int fd_file[]);
+void	here_doc_handle(char **argv[], int pipefd_in[]);
 void	close_fd(int fd_file[]);
 
 void	set_pipe_forward(int pipefd_in[], int pipefd_out[])
@@ -71,7 +71,7 @@ void	nurcery(char *argv[], char *envp[], int fd_file[], int *pipefd[])
 }
 #ifdef EN_BONUS
 
-void	here_doc_handle(char **argv[], int pipefd_in[], int pipefd_out[], int fd_file[])
+void	here_doc_handle(char **argv[], int pipefd_in[])
 {
 	char	*h_doc;
 	char	*line;
@@ -92,15 +92,8 @@ void	here_doc_handle(char **argv[], int pipefd_in[], int pipefd_out[], int fd_fi
 				break ; // sortie normale line et gnl(?)
 			}
 		}
-		else
-		{			
-			close(pipefd_in[0]);
-			close(pipefd_in[1]);
-			close(pipefd_out[0]);
-			close(pipefd_out[1]);
-			close_fd(fd_file);
-			exit(1); // sortie par eof anormale :gerer -1 errno close fd_file ?[0] [1] et free cmds et close pipefd_in ?[0] [1] et close pipefd_out [0] [1]
-		}
+		else 
+			ft_printf("\n"); // sortie par eof anormale :gerer -1 errno close fd_file ?[0] [1] et free cmds et close pipefd_in ?[0] [1] et close pipefd_out [0] [1]
 		free(line);
 	}	
 }
@@ -121,7 +114,7 @@ void	create_pipeline(char *argv[], char *envp[], int fd_file[], int flag)
 		pipefd_in[0] = fd_file[0];	
 	}	
 	else	
-		here_doc_handle(&argv, pipefd_in, pipefd_out, fd_file); // si ok close fd_file [1] et free cmds et close pipefd_in [0] [1] et close pipefd_out [0] [1]
+		here_doc_handle(&argv, pipefd_in); // si ok close fd_file [1] et free cmds et close pipefd_in [0] [1] et close pipefd_out [0] [1]
 	nurcery(argv, envp, fd_file, (int *[]) {pipefd_in, pipefd_out});
 	close(pipefd_in[1]); //gerer -1 errno close fd_file [1] et close pipefd_in [0] et close pipefd_out [0] [1] et free cmds
 	close(pipefd_out[1]); //gerer -1 errno close fd_file [1] et close pipefd_in [0] et close pipefd_out [0] et free cmds
