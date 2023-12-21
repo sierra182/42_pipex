@@ -12,33 +12,33 @@
 
 LIBFT_DIR = ft_printf/libft
 FT_PRINTF_DIR = ft_printf
-HEADERS_DIR = include
 SRC_DIR = sources
+
+BONUS_DIR = bonus
+SRCS_BONUS_DIR = $(BONUS_DIR)/sources
+GNL_DIR = $(BONUS_DIR)/gnl
 
 CC = cc
 CFLAGS = -I$(HEADERS_DIR) -I$(LIBFT_DIR) -I$(FT_PRINTF_DIR) -Wall -Wextra -Werror
+CFLAGS_BONUS = -I$(GNL_DIR) -DEN_BONUS
 LIBFTPRINTF = $(FT_PRINTF_DIR)/libftprintf.a
+
 SOURCES = $(SRC_DIR)/main.c $(SRC_DIR)/setup.c $(SRC_DIR)/parsing.c
+SOURCES_BONUS = $(GNL_DIR)/get_next_line.c  $(GNL_DIR)/get_next_line_utils.c $(SRCS_BONUS_DIR)/main.c $(SRCS_BONUS_DIR)/setup.c \
 OBJECTS = $(SOURCES:.c=.o)
 NAME = pipex
 NAME_BONUS = $(BONUS_DIR)/pipex
-BONUS_DIR = bonus
-GNL_DIR = $(BONUS_DIR)/gnl
-CFLAGS_BONUS = -I$(GNL_DIR) -DEN_BONUS
-SOURCES_BONUS = $(GNL_DIR)/get_next_line.c  $(GNL_DIR)/get_next_line_utils.c
-OBJECTS_BONUS = $(SOURCES:.c=_bonus.o) $(SOURCES_BONUS:.c=_bonus.o)
-HEADERS = $(FT_PRINTF_DIR)/ft_printf.h $(LIBFT_DIR)/libft.h
-HEADERS_BONUS = $(GNL_DIR)/get_next_line.h
+
+$(SRCS_BONUS_DIR)/parsing.c 
+OBJECTS_BONUS = $(SOURCES_BONUS:.c=_bonus.o)
+HEADER = $(SRC_DIR)/setup.h
+HEADERS_BONUS = $(GNL_DIR)/get_next_line.h $(SRCS_BONUS_DIR)/setup.h
 
 .PHONY: all ft_printf bonus clean fclean re intro l newline backline emoticon
 
-$(SRC_DIR)/%.o : $(SRC_DIR)/%.c $(LIBFTPRINTF) $(HEADERS)
+$(SRC_DIR)/%.o : $(SRC_DIR)/%.c $(LIBFTPRINTF) $(HEADER)
 	@echo "\033[0;32m compiling $(NAME) object $<...\033[0m" 🚀
 	@$(CC) $(CFLAGS) $< -c -o $@
-
-$(SRC_DIR)/%_bonus.o : $(SRC_DIR)/%.c $(LIBFTPRINTF) $(HEADERS)
-	@echo "\033[0;32m compiling $(NAME) object with flag bonus $<...\033[0m" 🚀
-	@$(CC) $(CFLAGS) $(CFLAGS_BONUS) $< -c -o $@
 
 $(BONUS_DIR)/%_bonus.o : $(BONUS_DIR)/%.c $(LIBFTPRINTF) $(HEADERS_BONUS)
 	@echo "\033[0;32m compiling $(NAME) object bonus $<...\033[0m" 🚀

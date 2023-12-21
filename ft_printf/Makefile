@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: seblin <seblin@student.42.fr>              +#+  +:+       +#+         #
+#    By: svidot <svidot@student.42.fr>              +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/10/29 08:16:28 by seblin            #+#    #+#              #
-#    Updated: 2023/12/07 20:01:04 by seblin           ###   ########.fr        #
+#    Updated: 2023/12/21 16:43:24 by svidot           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -17,6 +17,7 @@ SOURCES = ft_printf.c
 OBJECTS = $(SOURCES:.c=.o)
 LIBFTDIR = ./libft
 LIBFTPATH = $(LIBFTDIR)/libft.a
+HEADER = ft_printf.h
 
 .PHONY : all libft clean fclean re 
 
@@ -25,7 +26,7 @@ all : libft $(NAME)
 libft : 	
 	@$(MAKE) -s -C $(LIBFTDIR)	
 	
-%.o : %.c $(LIBFTPATH)
+%.o : %.c $(LIBFTPATH) $(HEADER)	
 	@echo "\033[0;32m compiling $<...\033[0m" 🚀
 	@$(CC) $(CFLAGS) $< -c -o $@
 
