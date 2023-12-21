@@ -18,16 +18,17 @@ SRC_DIR = sources
 CC = cc
 CFLAGS = -I$(HEADERS_DIR) -I$(LIBFT_DIR) -I$(FT_PRINTF_DIR) -Wall -Wextra -Werror
 LIBFTPRINTF = $(FT_PRINTF_DIR)/libftprintf.a
-SOURCES = $(SRC_DIR)/main.c $(SRC_DIR)/setup.c $(SRC_DIR)/parsing.c 
-OBJECTS = $(SOURCES:.c=.o) 
+SOURCES = $(SRC_DIR)/main.c $(SRC_DIR)/setup.c $(SRC_DIR)/parsing.c
+OBJECTS = $(SOURCES:.c=.o)
 NAME = pipex
 NAME_BONUS = $(BONUS_DIR)/pipex
 BONUS_DIR = bonus
 GNL_DIR = $(BONUS_DIR)/gnl
-CFLAGS_BONUS = -I$(GNL_DIR)
+CFLAGS_BONUS = -I$(GNL_DIR) -DEN_BONUS
 SOURCES_BONUS = $(GNL_DIR)/get_next_line.c  $(GNL_DIR)/get_next_line_utils.c
 OBJECTS_BONUS = $(SOURCES:.c=_bonus.o) $(SOURCES_BONUS:.c=_bonus.o)
 HEADERS = $(FT_PRINTF_DIR)/ft_printf.h $(LIBFT_DIR)/libft.h
+HEADERS_BONUS = $(GNL_DIR)/get_next_line.h
 
 .PHONY : all ft_printf bonus clean fclean re intro l newline emoticon
 
@@ -36,11 +37,11 @@ $(SRC_DIR)/%.o : $(SRC_DIR)/%.c $(LIBFTPRINTF) $(HEADERS)
 	@$(CC) $(CFLAGS) $< -c -o $@
 
 $(SRC_DIR)/%_bonus.o : $(SRC_DIR)/%.c $(LIBFTPRINTF) $(HEADERS)
-	@echo "\033[0;32m compiling $(NAME) object $<...\033[0m" 🚀
-	@$(CC) -DEN_BONUS $(CFLAGS) $(CFLAGS_BONUS) $< -c -o $@
+	@echo "\033[0;32m compiling $(NAME) object with flag bonus $<...\033[0m" 🚀
+	@$(CC) $(CFLAGS) $(CFLAGS_BONUS) $< -c -o $@
 
-$(BONUS_DIR)/%_bonus.o : $(BONUS_DIR)/%.c $(LDFLAGS) $(HEADERS_BONUS)
-	@echo "\033[0;32m compiling $(NAME_BONUS) object bonus $<...\033[0m" 🚀	
+$(BONUS_DIR)/%_bonus.o : $(BONUS_DIR)/%.c $(LIBFTPRINTF) $(HEADERS_BONUS)
+	@echo "\033[0;32m compiling $(NAME) object bonus $<...\033[0m" 🚀
 	@$(CC) $(CFLAGS) $(CFLAGS_BONUS) $< -c -o $@	
 
 all : intro ft_printf $(NAME) emoticon		
@@ -49,17 +50,17 @@ l :ft_printf $(NAME) emoticon
 
 ft_printf: emoticon
 	@$(MAKE) -s -C $(LIBFT_DIR) bonus 
-	$(MAKE) -s -C $(FT_PRINTF_DIR) 
+	@$(MAKE) -s -C $(FT_PRINTF_DIR) 
 
 $(NAME) : $(OBJECTS) 
-	@echo "\n\033[0;32m linking $(NAME) objects with $(LDFLAGS)...\033[0m 🚀\n"
+	@echo "\n\033[0;32m linking $(NAME) objects with $(LIBFTPRINTF)...\033[0m 🚀\n"
 	@$(CC) $(OBJECTS) $(LIBFTPRINTF) -o $@
 
 bonus : ft_printf $(NAME_BONUS)
 	@echo " 💎 🧯 🔥 😵\n"
 
 $(NAME_BONUS) : $(OBJECTS_BONUS)
-	@echo "\n\033[0;32m linking $(NAME) objects and objects bonus with $(LDFLAGS)...\033[0m 🚀\n"
+	@echo "\n\033[0;32m linking $(NAME) objects with flag and objects bonus with $(LIBFTPRINTF) to $(NAME_BONUS) \033[0m 🚀\n"
 	@$(CC) $(OBJECTS_BONUS) $(LIBFTPRINTF) -o $@
 
 emoticon:

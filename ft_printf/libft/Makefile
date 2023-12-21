@@ -6,7 +6,7 @@
 #    By: svidot <svidot@student.42.fr>              +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/12/04 06:56:29 by svidot            #+#    #+#              #
-#    Updated: 2023/12/11 16:27:34 by svidot           ###   ########.fr        #
+#    Updated: 2023/12/21 12:06:30 by svidot           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -35,7 +35,7 @@ all: $(NAME)
 
 %_bonus.o : %_bonus.c 
 	@if [ $(BONUS_FLAG) -eq 1 ]; then \
-		echo "\033[0;32m compiling libft BONUS object $<...\033[0m" 🚀; \
+		echo "\033[0;32m compiling libft bonus object $<...\033[0m" 🚀; \
 		$(CC) $(CFLAGS) $< -c -o $@; \
 	fi
 	
@@ -47,16 +47,12 @@ change_flag:
 	$(eval BONUS_FLAG = 1)
 
 bonus: change_flag $(NAME)
-
-test:
-	echo YAHOO
 	
 $(NAME) :: $(OBJECTS_BONUS)
 	@if [ $(BONUS_FLAG) -eq 1 ]; then \
 		echo "\n\033[0;32m adding libft objects bonus $? to $@ ...\033[0m" 🚀; \
 		ar rcs $@ $?; \
 	fi
-	$(MAKE) test
 
 clean:
 	@echo " cleanning libft objects 🧻"

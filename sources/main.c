@@ -6,7 +6,7 @@
 /*   By: svidot <svidot@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/19 15:23:23 by svidot            #+#    #+#             */
-/*   Updated: 2023/12/20 15:49:27 by svidot           ###   ########.fr       */
+/*   Updated: 2023/12/21 12:39:50 by svidot           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,7 @@ char	**parse_cmd(char *argv[], char *envp[], int fd_file[]);
 
 void	set_filepaths(int *argc, char **argv[], char *filepaths[]);
 void	get_fdio(int flag, char *filepaths[], int fd_file[]);
+void	here_doc_handle(char **argv[], int pipefd_in[]);
 
 void	set_pipe_forward(int pipefd_in[], int pipefd_out[])
 {			
@@ -94,15 +95,6 @@ void	here_doc_handle(char **argv[], int pipefd_in[])
 			exit(1); // sortie par eof anormale :gerer -1 errno close fd_file ?[0] [1] et free cmds et close pipefd_in ?[0] [1] et close pipefd_out [0] [1]
 		free(line);
 	}	
-}
-
-#else
-
-void	here_doc_handle(char **argv[], int pipefd_in[])
-{
-	ft_printf("MYERROR\n");
-	(void) argv;
-	(void) pipefd_in;
 }
 
 #endif
