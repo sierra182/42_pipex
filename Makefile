@@ -30,7 +30,7 @@ OBJECTS_BONUS = $(SOURCES:.c=_bonus.o) $(SOURCES_BONUS:.c=_bonus.o)
 HEADERS = $(FT_PRINTF_DIR)/ft_printf.h $(LIBFT_DIR)/libft.h
 HEADERS_BONUS = $(GNL_DIR)/get_next_line.h
 
-.PHONY : all ft_printf bonus clean fclean re intro l newline emoticon
+.PHONY: all ft_printf bonus clean fclean re intro l newline backline emoticon
 
 $(SRC_DIR)/%.o : $(SRC_DIR)/%.c $(LIBFTPRINTF) $(HEADERS)
 	@echo "\033[0;32m compiling $(NAME) object $<...\033[0m" 🚀
@@ -44,19 +44,19 @@ $(BONUS_DIR)/%_bonus.o : $(BONUS_DIR)/%.c $(LIBFTPRINTF) $(HEADERS_BONUS)
 	@echo "\033[0;32m compiling $(NAME) object bonus $<...\033[0m" 🚀
 	@$(CC) $(CFLAGS) $(CFLAGS_BONUS) $< -c -o $@	
 
-all : intro ft_printf $(NAME) emoticon		
+all: intro ft_printf $(NAME) emoticon		
 
-l :ft_printf $(NAME) emoticon
-
+l: ft_printf $(NAME) 
+	
 ft_printf: emoticon
 	@$(MAKE) -s -C $(LIBFT_DIR) bonus 
 	@$(MAKE) -s -C $(FT_PRINTF_DIR) 
 
 $(NAME) : $(OBJECTS) 
-	@echo "\n\033[0;32m linking $(NAME) objects with $(LIBFTPRINTF)...\033[0m 🚀\n"
+	@echo "\n\033[0;32m linking $(NAME) objects with $(LIBFTPRINTF)...\033[0m 🚀\n\n 💗 💗 💗 💗\n"
 	@$(CC) $(OBJECTS) $(LIBFTPRINTF) -o $@
 
-bonus : ft_printf $(NAME_BONUS)
+bonus: ft_printf $(NAME_BONUS)
 	@echo " 💎 🧯 🔥 😵\n"
 
 $(NAME_BONUS) : $(OBJECTS_BONUS)
@@ -68,6 +68,9 @@ emoticon:
 
 newline: 
 	@echo ""
+
+backline: 
+	@echo "\033[A\033[A"
 
 intro:
 	clear
@@ -91,13 +94,13 @@ intro:
 	@sleep .4
 	@cat mfile_design	
 
-clean :
+clean:
 	@echo "\n cleanning $(NAME) objects 🧻"
 	@rm -f $(OBJECTS) $(OBJECTS_BONUS);
 	@$(MAKE) -C $(FT_PRINTF_DIR) clean -s
 	@echo ""
 
-fclean : 
+fclean: 
 	@echo "\n cleanning $(NAME) objects 🧻"
 	@rm -f $(OBJECTS) $(OBJECTS_BONUS);
 	@echo " cleanning $(NAME) 🚽" 
@@ -105,4 +108,4 @@ fclean :
 	@$(MAKE) -C $(FT_PRINTF_DIR) fclean -s
 	@echo ""
 
-re: fclean l
+re: fclean backline l
