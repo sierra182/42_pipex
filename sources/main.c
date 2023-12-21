@@ -6,7 +6,7 @@
 /*   By: svidot <svidot@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/19 15:23:23 by svidot            #+#    #+#             */
-/*   Updated: 2023/12/21 12:39:50 by svidot           ###   ########.fr       */
+/*   Updated: 2023/12/21 13:53:25 by svidot           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,8 @@ char	**parse_cmd(char *argv[], char *envp[], int fd_file[]);
 
 void	set_filepaths(int *argc, char **argv[], char *filepaths[]);
 void	get_fdio(int flag, char *filepaths[], int fd_file[]);
-void	here_doc_handle(char **argv[], int pipefd_in[]);
+void	here_doc_handle(char **argv[], int pipefd_in[], int pipefd_out[], int fd_file[]);
+void	close_fd(int fd_file[]);
 
 void	set_pipe_forward(int pipefd_in[], int pipefd_out[])
 {			
@@ -43,34 +44,34 @@ void	set_pipe_forward(int pipefd_in[], int pipefd_out[])
 	close(pipefd_out[0]);  //  si -1 errno fd_file [1] cmds
 }
 
-void	nurcery(char *argv[], char *envp[], int fd_file[], int	pipefd_in[2], int pipefd_out[2])
+void	nurcery(char *argv[], char *envp[], int fd_file[], int *pipefd[])
 {
 	pid_t 	pid;
 	char 	**split;
 	
 	while(*(++argv + 1))
-	{	
-		pid = fork();	
+	{
+		pid = fork();
 		if (pid == 0)
 		{		
-			set_pipe_forward(pipefd_in, pipefd_out);		// si ok fd_file [1], cmds				
+			set_pipe_forward(pipefd[0], pipefd[1]);		// si ok fd_file [1], cmds				
 			split = parse_cmd(argv, envp, fd_file);			
 			execve(split[0], split, envp);			
 			exit(EXIT_FAILURE); // gerer errno -1, fd_file [1], cmds, et split	EXIT important sinon arbre!!!							 
 		}
 		else
 		{			// gerer les processus fils en cours ? 
-			close(pipefd_in[1]); //gerer -1 errno close fd_file [1] et free cmds et close pipefd_in [0] et close pipefd_out [0] [1]
-			close(pipefd_in[0]); //gerer -1 errno close fd_file [1] et free cmds et close pipefd_out [0] [1]
-			pipefd_in[0] = pipefd_out[0];
-			pipefd_in[1] = pipefd_out[1];
-			pipe(pipefd_out);	   		
+			close(pipefd[0][1]); //gerer -1 errno close fd_file [1] et free cmds et close pipefd_in [0] et close pipefd_out [0] [1]
+			close(pipefd[0][0]); //gerer -1 errno close fd_file [1] et free cmds et close pipefd_out [0] [1]
+			pipefd[0][0] = pipefd[1][0];
+			pipefd[0][1] = pipefd[1][1];
+			pipe(pipefd[1]);	   		
 		}
 	}
 }
 #ifdef EN_BONUS
 
-void	here_doc_handle(char **argv[], int pipefd_in[])
+void	here_doc_handle(char **argv[], int pipefd_in[], int pipefd_out[], int fd_file[])
 {
 	char	*h_doc;
 	char	*line;
@@ -92,7 +93,14 @@ void	here_doc_handle(char **argv[], int pipefd_in[])
 			}
 		}
 		else
+		{			
+			close(pipefd_in[0]);
+			close(pipefd_in[1]);
+			close(pipefd_out[0]);
+			close(pipefd_out[1]);
+			close_fd(fd_file);
 			exit(1); // sortie par eof anormale :gerer -1 errno close fd_file ?[0] [1] et free cmds et close pipefd_in ?[0] [1] et close pipefd_out [0] [1]
+		}
 		free(line);
 	}	
 }
@@ -112,9 +120,9 @@ void	create_pipeline(char *argv[], char *envp[], int fd_file[], int flag)
 		close(pipefd_in[0]); // gerer -1 errno close fd_file ?-1[0] [1] et free cmds et close pipefd_in [1] et close pipefd_out [0] [1] 
 		pipefd_in[0] = fd_file[0];	
 	}	
-	if (flag)	
-		here_doc_handle(&argv, pipefd_in); // si ok close fd_file [1] et free cmds et close pipefd_in [0] [1] et close pipefd_out [0] [1]
-	nurcery(argv, envp, fd_file, pipefd_in, pipefd_out);
+	else	
+		here_doc_handle(&argv, pipefd_in, pipefd_out, fd_file); // si ok close fd_file [1] et free cmds et close pipefd_in [0] [1] et close pipefd_out [0] [1]
+	nurcery(argv, envp, fd_file, (int *[]) {pipefd_in, pipefd_out});
 	close(pipefd_in[1]); //gerer -1 errno close fd_file [1] et close pipefd_in [0] et close pipefd_out [0] [1] et free cmds
 	close(pipefd_out[1]); //gerer -1 errno close fd_file [1] et close pipefd_in [0] et close pipefd_out [0] et free cmds
 	close(pipefd_out[0]); //gerer -1 errno close fd_file [1] et close pipefd_in [0] et free cmds

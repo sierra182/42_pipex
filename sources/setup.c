@@ -6,7 +6,7 @@
 /*   By: svidot <svidot@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/20 10:45:59 by svidot            #+#    #+#             */
-/*   Updated: 2023/12/21 12:44:11 by svidot           ###   ########.fr       */
+/*   Updated: 2023/12/21 13:50:49 by svidot           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,10 +20,12 @@
 
 #ifndef EN_BONUS
 
-void	here_doc_handle(char **argv[], int pipefd_in[])
+void	here_doc_handle(char **argv[], int pipefd_in[], int pipefd_out[], int fd_file[])
 {	
 	(void) argv;
 	(void) pipefd_in;
+	(void) pipefd_out;
+	(void) fd_file;
 }
 
 #endif
@@ -34,7 +36,7 @@ void	set_filepaths(int *argc, char **argv[], char *filepaths[])
 	filepaths[1] = (*argv)[*argc - 2];
 }
 
-static void	close_fd(int fd_file[])
+void	close_fd(int fd_file[])
 {
 	if (fd_file[0] >= 0)
 		close(fd_file[0]); // gerer -1
