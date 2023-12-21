@@ -19,18 +19,20 @@ SRCS_BONUS_DIR = $(BONUS_DIR)/sources
 GNL_DIR = $(BONUS_DIR)/gnl
 
 CC = cc
-CFLAGS = -I$(HEADERS_DIR) -I$(LIBFT_DIR) -I$(FT_PRINTF_DIR) -Wall -Wextra -Werror
+CFLAGS = -I$(LIBFT_DIR) -I$(FT_PRINTF_DIR) -Wall -Wextra -Werror
 CFLAGS_BONUS = -I$(GNL_DIR) -DEN_BONUS
-LIBFTPRINTF = $(FT_PRINTF_DIR)/libftprintf.a
 
 SOURCES = $(SRC_DIR)/main.c $(SRC_DIR)/setup.c $(SRC_DIR)/parsing.c
-SOURCES_BONUS = $(GNL_DIR)/get_next_line.c  $(GNL_DIR)/get_next_line_utils.c $(SRCS_BONUS_DIR)/main.c $(SRCS_BONUS_DIR)/setup.c \
+SOURCES_BONUS = $(GNL_DIR)/get_next_line.c $(GNL_DIR)/get_next_line_utils.c $(SRCS_BONUS_DIR)/main.c $(SRCS_BONUS_DIR)/setup.c \
+$(SRCS_BONUS_DIR)/parsing.c 
+
 OBJECTS = $(SOURCES:.c=.o)
+OBJECTS_BONUS = $(SOURCES_BONUS:.c=_bonus.o)
+
+LIBFTPRINTF = $(FT_PRINTF_DIR)/libftprintf.a
 NAME = pipex
 NAME_BONUS = $(BONUS_DIR)/pipex
 
-$(SRCS_BONUS_DIR)/parsing.c 
-OBJECTS_BONUS = $(SOURCES_BONUS:.c=_bonus.o)
 HEADER = $(SRC_DIR)/setup.h
 HEADERS_BONUS = $(GNL_DIR)/get_next_line.h $(SRCS_BONUS_DIR)/setup.h
 
