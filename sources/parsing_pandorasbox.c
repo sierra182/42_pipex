@@ -6,7 +6,7 @@
 /*   By: svidot <svidot@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/19 09:06:02 by svidot            #+#    #+#             */
-/*   Updated: 2023/12/28 16:45:06 by svidot           ###   ########.fr       */
+/*   Updated: 2023/12/28 17:04:34 by svidot           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -90,7 +90,7 @@ t_ast_nde	*set_space_nde(char *start, char *end, int flag)
 	return (NULL);	
 }
 
-t_ast_nde	*filter_wrapper(t_ast_nde space, char *argv)
+t_ast_nde	*filter_wrapper(t_ast_nde node, t_ast_nde *(filter *)(char *, char *))
 {
 	t_ast_nde	*res_nde;
 	t_ast_nde	*res_sibling;
@@ -98,7 +98,7 @@ t_ast_nde	*filter_wrapper(t_ast_nde space, char *argv)
 
 	while (space)
 	{
-		res_nde = set_space_nde(space->start, space->end);
+		res_nde = filter(space->start, space->end);
 		if (res_nde)
 			if (!res_sibling)
 			{
