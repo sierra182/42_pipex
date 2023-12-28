@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parsing_pandorasbox.c                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: seblin <seblin@student.42.fr>              +#+  +:+       +#+        */
+/*   By: svidot <svidot@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/19 09:06:02 by svidot            #+#    #+#             */
-/*   Updated: 2023/12/25 20:05:21 by seblin           ###   ########.fr       */
+/*   Updated: 2023/12/28 16:45:06 by svidot           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@ typedef enum e_tok
 {
 	SQUTE,
 	DQUTE,
+	SPACE,
 	CMD,
 	ARG_CMD,
 	OPT_CMD,
@@ -68,23 +69,50 @@ int	set_squte_nde(t_ast_nde squte, char *argv)
 		return (1);
 }
 
-void	set_cmd_nde(t_ast_nde cmd, char *argv)
-{
-	while (*argv)
+
+t_ast_nde	*set_space_nde(char *start, char *end, int flag)
+{	
+	static t_ast_nde	*spce_nde;
+
+	if (flag)
+		*spce_nde = create_node(SPACE);	
+	while (*start && start != end + 1 && ft_isspace(*start))
+		start++;
+	while (*start && start != end + 1 && !ft_isspace(*start))
 	{
-		while (*argv && !ft_isspace(*argv))
-		{
-			if (!cmd->start)
-				cmd->start = argv;
-			cmd->end = argv;
-			argv++;
-		}
-		if (cmd->start)
-			break;
-		argv++;
+		if (!spce_nde->start)
+			spce_nde->start = start;
+		spce_nde->end = start;
+		start++;
 	}
-	if (!cmd->start)
-		ft_putstr_fd("no cmd found.\n", 2); // gerer err
+	if (spce_nde->start && ft_isspace(*start))
+		return (spce_nde);	
+	return (NULL);	
+}
+
+t_ast_nde	*filter_wrapper(t_ast_nde space, char *argv)
+{
+	t_ast_nde	*res_nde;
+	t_ast_nde	*res_sibling;
+	t_ast_nde	*res_sibling_sav;
+
+	while (space)
+	{
+		res_nde = set_space_nde(space->start, space->end);
+		if (res_nde)
+			if (!res_sibling)
+			{
+				res_sibling = res_nde;
+				res_sibling_sav = res_sibling;
+			}
+			else
+			{
+				res_sibling->sibling = res_nde;
+				res_sibling = res_sibling->sibling;
+			}
+		space = space->sibling;
+	}
+	return (res_sibling_sav);
 }
 
 void	set_token(t_ast_nde seek, char *argv)
@@ -117,6 +145,24 @@ char	**parse_cmd(char *argv)
 		else if (*argv == "\"")
 		argv++;
 	}
+}
+void	set_cmd_nde(t_ast_nde cmd, char *argv)
+{
+	while (*argv)
+	{
+		while (*argv && !ft_isspace(*argv))
+		{
+			if (!cmd->start)
+				cmd->start = argv;
+			cmd->end = argv;
+			argv++;
+		}
+		if (cmd->start)
+			break ;
+		argv++;
+	}
+	if (!cmd->start)
+		ft_putstr_fd("no cmd found.\n", 2); // gerer err
 }
 
 // y a il deux simplequote
