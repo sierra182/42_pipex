@@ -6,7 +6,7 @@
 /*   By: svidot <svidot@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/19 09:06:02 by svidot            #+#    #+#             */
-/*   Updated: 2023/12/29 08:19:02 by svidot           ###   ########.fr       */
+/*   Updated: 2023/12/29 15:03:35 by svidot           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 
 typedef enum e_tok
 {
+	INVRT,
 	SQUTE,
 	DQUTE,
 	SPACE,
@@ -43,6 +44,21 @@ t_ast_nde	*create_node(t_tok token)
 	new_node->token = token;
 	return (new_node);
 }
+
+void	add_sibling(t_ast_nde *node, t_ast_nde **sibling, t_ast_nde **sibling_sav)
+{
+	if (!*sibling)			
+	{
+		*sibling = node;
+		*sibling_sav = *sibling;
+	}
+	else
+	{
+		(*sibling)->sibling = node;
+		*sibling = (*sibling)->sibling;
+	}
+}
+
 int	set_squte_nde(t_ast_nde *squte, char **argv)
 {
 	while (**argv)
@@ -111,39 +127,72 @@ t_ast_nde	*set_quote_nde(char *argv)
 		{
 			qute_nde = create_node(SQUTE);
 			if (set_squte_nde(qute_nde, &argv))
-			{
-				if (!qute_sibling)			
-				{
-					qute_sibling = qute_nde;
-					qute_sibling_sav = qute_sibling;
-				}
-				else
-				{
-					qute_sibling->sibling = qute_nde;
-					qute_sibling = qute_sibling->sibling;
-				}
-			}		
+				add_sibling(qute_nde, &qute_sibling, &qute_sibling_sav);
 		}
 		else if (*argv == '\"')
 		{
 			qute_nde = create_node(DQUTE);
 			if (set_dqute_nde(qute_nde, &argv))
-			{
-				if (!qute_sibling)			
-				{
-					qute_sibling = qute_nde;
-					qute_sibling_sav = qute_sibling;
-				}
-				else
-				{
-					qute_sibling->sibling = qute_nde;
-					qute_sibling = qute_sibling->sibling;
-				}
-			}
-		}
+				add_sibling(qute_nde, &qute_sibling, &qute_sibling_sav);
+		}		
 		argv++;
 	}
 	return (qute_sibling_sav);
+}
+
+t_ast_nde	*invert_node(t_ast_nde *node, char *argv)
+{
+	static char	*lcal_argv; 
+	t_ast_nde	*invrt_nde;
+	
+	if (!lcal_argv)
+		lcal_argv = argv;
+	if (node && node->start < lcal_argv)
+	{
+		invrt_nde = create_node(INVRT);
+		invrt_nde->start = lcal_argv;
+		while (*lcal_argv && lcal_argv < node->start)
+		{
+			invrt_nde->end = lcal_argv;
+			lcal_argv++;
+		}
+		if (!*lcal_argv)
+			lcal_argv = NULL;
+		return (invrt_nde);	
+	}
+	else if (node)
+	{
+		while (*lcal_argv && lcal_argv <= node->end)
+			lcal_argv++;
+		invrt_nde = create_node(INVRT);
+		invrt_nde->start = lcal_argv;
+		while (*lcal_argv && node->sibling && lcal_argv <= node->sibling->start)
+		{
+			invrt_nde->end = lcal_argv;
+			lcal_argv++;
+		}
+		if (!*lcal_argv)
+			lcal_argv = NULL;
+		return (invrt_nde);
+	}
+	return (NULL);
+}
+
+t_ast_nde	*filter_wrapper(char *argv, t_ast_nde *node, t_ast_nde *(*filter)(t_ast_nde *, char *))
+{
+	t_ast_nde	*res_nde;
+	t_ast_nde	*res_sibling;
+	t_ast_nde	*res_sibling_sav;
+
+	res_sibling = NULL;
+	while (node)
+	{				
+		res_nde = filter(node, argv);
+		if (res_nde)
+			add_sibling(res_nde, &res_sibling, &res_sibling_sav);		
+		node = node->sibling;
+	}
+	return (res_sibling_sav);
 }
 #include <stdio.h>
 
@@ -151,7 +200,7 @@ void	sibling_reader(t_ast_nde *node)
 {
 	while (node)
 	{
-		while (node->start != node->end + 1)
+		while (node->start <= node->end)
 		{
 			printf("%c", *node->start);
 			node->start++;
@@ -163,9 +212,12 @@ void	sibling_reader(t_ast_nde *node)
 
 int	main(void)
 {
-	char *argv = "\"sal'ut\" 'c e\"st' 'moi'";
+	char *argv = "\"sal'ut\" c est 'moi' la 'vie'";
 	t_ast_nde	*res;
 	res = set_quote_nde(argv);
+	sibling_reader(res);
+	printf("\n");
+	res = filter_wrapper(argv, res, invert_node);
 	sibling_reader(res);
 	return (0);
 }
@@ -175,7 +227,7 @@ t_ast_nde	*set_space_nde(char *start, char *end, int flag)
 	static t_ast_nde	*spce_nde;
 
 	if (flag)
-		*spce_nde = create_node(SPACE);	
+		spce_nde = create_node(SPACE);	
 	while (*start && start != end + 1 && ft_isspace(*start))
 		start++;
 	while (*start && start != end + 1 && !ft_isspace(*start))
@@ -190,32 +242,27 @@ t_ast_nde	*set_space_nde(char *start, char *end, int flag)
 	return (NULL);	
 }
 
-t_ast_nde	*filter_wrapper(t_ast_nde node, t_ast_nde *(filter *)(char *, char *))
-{
-	t_ast_nde	*res_nde;
-	t_ast_nde	*res_sibling;
-	t_ast_nde	*res_sibling_sav;
-
-	res_sibling = NULL;
-	while (node)
-	{
-		res_nde = filter(node->start, node->end);
-		if (res_nde)
-			if (!res_sibling)
-			{
-				res_sibling = res_nde;
-				res_sibling_sav = res_sibling;
-			}
-			else
-			{
-				res_sibling->sibling = res_nde;
-				res_sibling = res_sibling->sibling;
-			}
-		node = node->sibling;
-	}
-	return (res_sibling_sav);
-}
 */
+
+// t_ast_nde	*filter_wrapper(t_ast_nde node, t_tok token, t_ast_nde *(filter *)(char *, char *))
+// {
+// 	t_ast_nde	*res_nde;
+// 	t_ast_nde	*res_sibling;
+// 	t_ast_nde	*res_sibling_sav;
+
+// 	res_sibling = NULL;
+// 	while (node)
+// 	{
+// 		if (node->token == token)
+// 		{			
+// 			res_nde = filter(node->start, node->end);
+// 			if (res_nde)
+// 				add_sibling(res_nde, &res_sibling, &res_sibling_sav);
+// 		}
+// 		node = node->sibling;
+// 	}
+// 	return (res_sibling_sav);
+// }
 
 
 /*
