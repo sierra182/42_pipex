@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parsing_pandorasbox.c                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: seblin <seblin@student.42.fr>              +#+  +:+       +#+        */
+/*   By: svidot <svidot@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/19 09:06:02 by svidot            #+#    #+#             */
-/*   Updated: 2023/12/30 09:29:00 by seblin           ###   ########.fr       */
+/*   Updated: 2023/12/30 13:23:42 by svidot           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -141,36 +141,73 @@ t_ast_nde	*set_quote_nde(char *argv)
 }
 #include <stdio.h>
 
-t_ast_nde	*invert_node(t_ast_nde **node, char **argv)
+// t_ast_nde	*invert_node(t_ast_nde **node, char **argv)
+// {	
+// 	int			flag;
+// 	t_ast_nde	*invrt_nde;
+
+// 	flag = 0;
+// 	invrt_nde = NULL;
+// 	printf("here deb\n");
+// 	//printf("here: %c, %c, %c\n",*(*argv + 1), *((*node)->start + 1), *((*node)->end - 1));
+// 	if (*node && *argv >= (*node)->start && *argv <= (*node)->end && ++flag)  // si argv est compris ds un noeud au debut note le debut du invert noeud ds argv puis avance node
+// 	{
+// 		printf("JO: %c\n",**argv);
+// 		*argv = (*node)->end + 1;
+// 		return (NULL);
+// 		//*node = (*node)->sibling;
+// 	}
+// 	if (**argv)
+// 	{printf("JU: %c\n",**argv);
+// 		invrt_nde = create_node(INVRT);
+// 		invrt_nde->start = *argv;
+// 	}
+// 	if (**argv && *node)
+// 	{
+// 		printf("JI: %c\n", **argv);
+// 		invrt_nde->end = (*node)->start - 1;
+
+// 		*argv = (*node)->end + 1;		
+// 	}
+// 	else if (**argv && !*node)
+// 	{	
+// 		printf("ZA");
+// 		printf("ZA: %c\n",**argv);
+// 		while (**argv)	
+// 		{
+// 			printf("ZU: %c\n",**argv);
+// 			invrt_nde->end = (*argv)++;	
+// 		}printf("ZZ\n");
+// 	}
+// 	// }
+// 	// if (*node && *argv >= (*node)->start && *argv <= (*node)->end && ++flag)
+// 	// {
+// 	// 	//printf("JU: %c\n",**argv);
+// 	// 	//*argv = (*node)->end + 1;
+// 	// }
+// 	return (invrt_nde);
+// }
+
+t_ast_nde	*invert_node(t_ast_nde *node, char **argv)
 {	
-	int			flag;
 	t_ast_nde	*invrt_nde;
 
-	flag = 0;
-	invrt_nde = NULL;
-	//printf("here: %c, %c, %c\n",*(*argv + 1), *((*node)->start + 1), *((*node)->end - 1));
-	while (*node && *argv >= (*node)->start && *argv <= (*node)->end && ++flag)
-	{
-		printf("JO: %c\n",**argv);
-		(*argv)++;
+	if (node && *argv >= node->start && *argv <= node->end)  
+	{		
+		*argv = node->end + 1;
+		return (NULL);	
 	}
-	if (flag)
-		*node = (*node)->sibling;
-	if (**argv)
-	{
-		invrt_nde = create_node(INVRT);
-		invrt_nde->start = *argv;
-	}
-	while ((**argv && *node && *argv < (*node)->start) || (**argv && !*node))	
-		invrt_nde->end = (*argv)++;
-	while (*node && *argv >= (*node)->start && *argv <= (*node)->end && ++flag)
-	{
-		printf("JU: %c\n",**argv);
-		(*argv)++;
-	}
+	invrt_nde = create_node(INVRT);
+	invrt_nde->start = *argv;
+	if (node)
+	{	
+		invrt_nde->end = node->start - 1;
+		*argv = node->end + 1;		
+	}		
+	while (**argv && !node)			
+		invrt_nde->end = (*argv)++;			
 	return (invrt_nde);
 }
-
 // t_ast_nde	*invert_node(t_ast_nde **node, char **argv)
 // {	
 // 	int			flag;
@@ -229,7 +266,7 @@ t_ast_nde	*invert_node(t_ast_nde **node, char **argv)
 	// printf("never here !\n");
 	// return (NULL);
 	#include <stdio.h>
-t_ast_nde	*filter_wrapper(char *argv, t_ast_nde *node, t_ast_nde *(*filter)(t_ast_nde **, char **))
+t_ast_nde	*filter_wrapper(char *argv, t_ast_nde *node, t_ast_nde *(*filter)(t_ast_nde *, char **))
 {
 	t_ast_nde	*res_nde;
 	t_ast_nde	*res_sibling;
@@ -237,8 +274,8 @@ t_ast_nde	*filter_wrapper(char *argv, t_ast_nde *node, t_ast_nde *(*filter)(t_as
 
 	res_sibling = NULL;
 	while (node || *argv)
-	{	//		printf("YA :%c", *argv);
-		res_nde = filter(&node, &argv);
+	{
+		res_nde = filter(node, &argv);
 		if (res_nde)
 			add_sibling(res_nde, &res_sibling, &res_sibling_sav);
 		if (node)	
@@ -246,7 +283,6 @@ t_ast_nde	*filter_wrapper(char *argv, t_ast_nde *node, t_ast_nde *(*filter)(t_as
 	}
 	return (res_sibling_sav);
 }
-
 
 void	sibling_reader(t_ast_nde *node)
 {
@@ -268,12 +304,12 @@ void	sibling_reader(t_ast_nde *node)
 
 int	main(void)
 {
-	char *argv = "juice 'sa'lut \"c'\" est 'moi'k la j'vie'ju";
+	char *argv = "juice 'salut' c est moi k la j\"vie\"hui";
 	t_ast_nde	*res;
 	printf("%s\n", argv);
 	res = set_quote_nde(argv);
 	sibling_reader(res);
-	printf("\n");	
+	printf("stop\n");	
 	res = filter_wrapper(argv, res, invert_node);
 	sibling_reader(res);
 	return (0);
