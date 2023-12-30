@@ -6,7 +6,7 @@
 /*   By: seblin <seblin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/19 09:06:02 by svidot            #+#    #+#             */
-/*   Updated: 2023/12/29 23:47:07 by seblin           ###   ########.fr       */
+/*   Updated: 2023/12/30 09:29:00 by seblin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -140,6 +140,7 @@ t_ast_nde	*set_quote_nde(char *argv)
 	return (qute_sibling_sav);
 }
 #include <stdio.h>
+
 t_ast_nde	*invert_node(t_ast_nde **node, char **argv)
 {	
 	int			flag;
@@ -169,6 +170,36 @@ t_ast_nde	*invert_node(t_ast_nde **node, char **argv)
 	}
 	return (invrt_nde);
 }
+
+// t_ast_nde	*invert_node(t_ast_nde **node, char **argv)
+// {	
+// 	int			flag;
+// 	t_ast_nde	*invrt_nde;
+
+// 	flag = 0;
+// 	invrt_nde = NULL;
+// 	//printf("here: %c, %c, %c\n",*(*argv + 1), *((*node)->start + 1), *((*node)->end - 1));
+// 	while (*node && *argv >= (*node)->start && *argv <= (*node)->end && ++flag)
+// 	{
+// 		printf("JO: %c\n",**argv);
+// 		(*argv)++;
+// 	}
+// 	if (flag)
+// 		*node = (*node)->sibling;
+// 	if (**argv)
+// 	{
+// 		invrt_nde = create_node(INVRT);
+// 		invrt_nde->start = *argv;
+// 	}
+// 	while ((**argv && *node && *argv < (*node)->start) || (**argv && !*node))	
+// 		invrt_nde->end = (*argv)++;
+// 	while (*node && *argv >= (*node)->start && *argv <= (*node)->end && ++flag)
+// 	{
+// 		printf("JU: %c\n",**argv);
+// 		(*argv)++;
+// 	}
+// 	return (invrt_nde);
+// }
 	// if (node && *argv < node->start)
 	// {	printf("never here 1, %c, n start %c\n", **argv, *(node->start + 1));
 	// 	invrt_nde = create_node(INVRT);
