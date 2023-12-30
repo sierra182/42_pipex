@@ -6,7 +6,7 @@
 /*   By: svidot <svidot@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/19 09:06:02 by svidot            #+#    #+#             */
-/*   Updated: 2023/12/30 17:46:10 by svidot           ###   ########.fr       */
+/*   Updated: 2023/12/30 19:03:17 by svidot           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -320,7 +320,7 @@ t_ast_nde	*set_space_nde(t_ast_nde *node)
 		spce_nde->end = node->start;
 		node->start++;
 	}
-	if (spce_nde->start && ft_isspace(*node->start))
+	if (spce_nde->start && (ft_isspace(*node->start) || !*node->start))
 	{ printf("la\n");
 		
 		// lcl_end = end;
@@ -336,6 +336,7 @@ t_ast_nde	*set_space_nde(t_ast_nde *node)
 	// }
 	printf("lc\n");
 	flag = 1;
+	
 	return (NULL);	
 }
 
@@ -378,7 +379,7 @@ t_ast_nde	*filter_wrapper_sp(t_ast_nde *node, t_ast_nde *(*filter)(t_ast_nde *no
 }
 int	main(void)
 {
-	char *argv = "  juice' szl ut 'cc est moi k la j \"vie \"huit ";
+	char *argv = "juice' szl ut 'cc est moi k la j\"vie\"";
 	t_ast_nde	*res;
 	printf("%s\n", argv);
 	res = set_quote_nde(argv);
