@@ -6,7 +6,7 @@
 /*   By: svidot <svidot@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/19 09:06:02 by svidot            #+#    #+#             */
-/*   Updated: 2023/12/30 13:23:42 by svidot           ###   ########.fr       */
+/*   Updated: 2023/12/30 17:46:10 by svidot           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -203,9 +203,9 @@ t_ast_nde	*invert_node(t_ast_nde *node, char **argv)
 	{	
 		invrt_nde->end = node->start - 1;
 		*argv = node->end + 1;		
-	}		
-	while (**argv && !node)			
-		invrt_nde->end = (*argv)++;			
+	}
+	while (**argv && !node)
+		invrt_nde->end = (*argv)++;
 	return (invrt_nde);
 }
 // t_ast_nde	*invert_node(t_ast_nde **node, char **argv)
@@ -296,67 +296,101 @@ void	sibling_reader(t_ast_nde *node)
 			printf("%c", *node->start);
 			node->start++;
 		}
-		node->start = start_sav;
 		printf("\n");
+		node->start = start_sav;
 		node = node->sibling;
 	}
 }
 
+t_ast_nde	*set_space_nde(t_ast_nde *node)
+{	
+	static t_ast_nde	*spce_nde;
+	static int			flag;	
+	static char			*lcl_start;
+	static char			*lcl_end;
+	
+	if (!flag)
+		spce_nde = create_node(SPACE);	
+	while (*node->start && node->start != node->end + 1 && ft_isspace(*node->start) && !spce_nde->start)
+		node->start++;
+	while (*node->start && node->start != node->end + 1 && !ft_isspace(*node->start))
+	{printf("lq\n");
+		if (!spce_nde->start)
+			spce_nde->start = node->start;
+		spce_nde->end = node->start;
+		node->start++;
+	}
+	if (spce_nde->start && ft_isspace(*node->start))
+	{ printf("la\n");
+		
+		// lcl_end = end;
+		flag = 0;
+		return (spce_nde);
+	}
+	// else if (spce_nde->start && !ft_isspace(*start))
+	// {  printf("lb");
+	// 	// lcl_start = start;
+	// 	// lcl_end = end;
+	// 	flag = 0;
+	// 	return (spce_nde);
+	// }
+	printf("lc\n");
+	flag = 1;
+	return (NULL);	
+}
+
+// t_ast_nde	*set_space_nde(char *start, char *end, int flag)
+// {	
+// 	static t_ast_nde	*spce_nde;
+
+// 	if (flag)
+// 		spce_nde = create_node(SPACE);	
+// 	while (*start && start != end + 1 && ft_isspace(*start))
+// 		start++;
+// 	while (*start && start != end + 1 && !ft_isspace(*start))
+// 	{
+// 		if (!spce_nde->start)
+// 			spce_nde->start = start;
+// 		spce_nde->end = start;
+// 		start++;
+// 	}
+// 	if (spce_nde->start && ft_isspace(*start))
+// 		return (spce_nde);	
+// 	return (NULL);	
+// }
+
+t_ast_nde	*filter_wrapper_sp(t_ast_nde *node, t_ast_nde *(*filter)(t_ast_nde *node))
+{
+	t_ast_nde	*res_nde;
+	t_ast_nde	*res_sibling;
+	t_ast_nde	*res_sibling_sav;
+
+	res_sibling = NULL;
+	while (node)
+	{	//	printf("WWWWWWWWWWW\n");
+		res_nde = filter(node);
+		if (res_nde)
+			add_sibling(res_nde, &res_sibling, &res_sibling_sav);
+		if (!res_nde)
+			node = node->sibling;
+	}
+	return (res_sibling_sav);
+}
 int	main(void)
 {
-	char *argv = "juice 'salut' c est moi k la j\"vie\"hui";
+	char *argv = "  juice' szl ut 'cc est moi k la j \"vie \"huit ";
 	t_ast_nde	*res;
 	printf("%s\n", argv);
 	res = set_quote_nde(argv);
 	sibling_reader(res);
-	printf("stop\n");	
+	printf("\nstop\n\n");	
 	res = filter_wrapper(argv, res, invert_node);
+	sibling_reader(res);
+	printf("\nstop\n\n");	
+	res = filter_wrapper_sp(res, set_space_nde);
 	sibling_reader(res);
 	return (0);
 }
-/*
-t_ast_nde	*set_space_nde(char *start, char *end, int flag)
-{	
-	static t_ast_nde	*spce_nde;
-
-	if (flag)
-		spce_nde = create_node(SPACE);	
-	while (*start && start != end + 1 && ft_isspace(*start))
-		start++;
-	while (*start && start != end + 1 && !ft_isspace(*start))
-	{
-		if (!spce_nde->start)
-			spce_nde->start = start;
-		spce_nde->end = start;
-		start++;
-	}
-	if (spce_nde->start && ft_isspace(*start))
-		return (spce_nde);	
-	return (NULL);	
-}
-
-*/
-
-// t_ast_nde	*filter_wrapper(t_ast_nde node, t_tok token, t_ast_nde *(filter *)(char *, char *))
-// {
-// 	t_ast_nde	*res_nde;
-// 	t_ast_nde	*res_sibling;
-// 	t_ast_nde	*res_sibling_sav;
-
-// 	res_sibling = NULL;
-// 	while (node)
-// 	{
-// 		if (node->token == token)
-// 		{			
-// 			res_nde = filter(node->start, node->end);
-// 			if (res_nde)
-// 				add_sibling(res_nde, &res_sibling, &res_sibling_sav);
-// 		}
-// 		node = node->sibling;
-// 	}
-// 	return (res_sibling_sav);
-// }
-
 
 /*
 void	set_token(t_ast_nde seek, char *argv)
