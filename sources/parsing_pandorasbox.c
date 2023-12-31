@@ -6,7 +6,7 @@
 /*   By: seblin <seblin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/19 09:06:02 by svidot            #+#    #+#             */
-/*   Updated: 2023/12/31 09:04:38 by seblin           ###   ########.fr       */
+/*   Updated: 2023/12/31 14:06:15 by seblin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -188,15 +188,30 @@ t_ast_nde	*set_quote_nde(char *argv)
 // 	return (invrt_nde);
 // }
 
+// t_ast_nde	*invert_node(t_ast_nde *node, char **argv) last
+// {	
+// 	t_ast_nde	*invrt_nde;
+
+// 	if (node && *argv >= node->start && *argv < node->end)//<= node->end)  
+// 	{		
+// 		*argv = node->end;
+// 		return (NULL);	
+// 	}
+// 	invrt_nde = create_node(INVRT);
+// 	invrt_nde->start = *argv;
+// 	if (node)
+// 	{	
+// 		invrt_nde->end = node->start;// - 1;
+// 		*argv = node->end;// + 1;		
+// 	}
+// 	while (**argv && !node)
+// 		invrt_nde->end = (*argv)++;
+// 	return (invrt_nde);
+// }
 t_ast_nde	*invert_node(t_ast_nde *node, char **argv)
 {	
 	t_ast_nde	*invrt_nde;
 
-	if (node && *argv >= node->start && *argv < node->end)//<= node->end)  
-	{		
-		*argv = node->end;
-		return (NULL);	
-	}
 	invrt_nde = create_node(INVRT);
 	invrt_nde->start = *argv;
 	if (node)
@@ -266,6 +281,24 @@ t_ast_nde	*invert_node(t_ast_nde *node, char **argv)
 	// printf("never here !\n");
 	// return (NULL);
 	#include <stdio.h>
+// t_ast_nde	*filter_wrapper(char *argv, t_ast_nde *node, t_ast_nde *(*filter)(t_ast_nde *, char **)) last
+// {
+// 	t_ast_nde	*res_nde;
+// 	t_ast_nde	*res_sibling;
+// 	t_ast_nde	*res_sibling_sav;
+
+// 	res_sibling = NULL;
+// 	while (node || *argv)
+// 	{
+// 		res_nde = filter(node, &argv);
+// 		if (res_nde)
+// 			add_sibling(res_nde, &res_sibling, &res_sibling_sav);
+// 		if (node)	
+// 			node = node->sibling;
+// 	}
+// 	return (res_sibling_sav);
+// }
+
 t_ast_nde	*filter_wrapper(char *argv, t_ast_nde *node, t_ast_nde *(*filter)(t_ast_nde *, char **))
 {
 	t_ast_nde	*res_nde;
@@ -276,23 +309,21 @@ t_ast_nde	*filter_wrapper(char *argv, t_ast_nde *node, t_ast_nde *(*filter)(t_as
 	while (node || *argv)
 	{
 		res_nde = filter(node, &argv);
-		if (res_nde)
-			add_sibling(res_nde, &res_sibling, &res_sibling_sav);
+		add_sibling(res_nde, &res_sibling, &res_sibling_sav);
 		if (node)	
 			node = node->sibling;
 	}
 	return (res_sibling_sav);
 }
-
 void	sibling_reader(t_ast_nde *node)
 {
 	char	*start_sav;
-	
+
 	while (node)
 	{
 		start_sav = node->start;
 		while (node->start <= node->end)
-		{
+		{		
 			printf("%c", *node->start);
 			node->start++;
 		}
@@ -301,10 +332,9 @@ void	sibling_reader(t_ast_nde *node)
 		node = node->sibling;
 	}
 }
-
 t_ast_nde	*set_space_nde(t_ast_nde *node)
 {	
-	static t_ast_nde	*spce_nde;
+	static t_ast_nde	*spce_nde;  // arg pour flag et inter general
 	static int			flag;	
 	
 	if (!flag)
@@ -318,14 +348,44 @@ t_ast_nde	*set_space_nde(t_ast_nde *node)
 		spce_nde->end = node->start;
 		node->start++;
 	}
-	if (spce_nde->start && ((node->start <= node->end && ft_isspace(*node->start)) || !*node->start))
+	if (spce_nde->start && (node->start <= node->end || !*node->start))
 	{
-		flag = 0;
+		flag = 0;		
 		return (spce_nde); // je garde le noeud entree et renvois le  noeud sortie
 	}
-	flag = 1;	
+	flag = 1;
+	if (!spce_nde->start)
+	{	
+		flag = 0;
+		free(spce_nde);		
+	}
 	return (NULL);	// je change de noeud entree et garde le noeud sortie
 }
+
+// t_ast_nde	*set_space_nde(t_ast_nde *node)
+// {	
+// 	static t_ast_nde	*spce_nde;
+// 	static int			flag;	
+	
+// 	if (!flag)
+// 		spce_nde = create_node(SPACE);	
+// 	while (node->start <= node->end && ft_isspace(*node->start))
+// 		node->start++;
+// 	while (node->start <= node->end && !ft_isspace(*node->start))
+// 	{
+// 		if (!spce_nde->start)
+// 			spce_nde->start = node->start;
+// 		spce_nde->end = node->start;
+// 		node->start++;
+// 	}
+// 	if (spce_nde->start && ((node->start <= node->end && ft_isspace(*node->start)) || !*node->start))
+// 	{
+// 		flag = 0;
+// 		return (spce_nde); // je garde le noeud entree et renvois le  noeud sortie
+// 	}
+// 	flag = 1;	
+// 	return (NULL);	// je change de noeud entree et garde le noeud sortie
+// }
 
 // t_ast_nde	*set_space_nde(char *start, char *end, int flag)
 // {	
@@ -366,7 +426,7 @@ t_ast_nde	*filter_wrapper_sp(t_ast_nde *node, t_ast_nde *(*filter)(t_ast_nde *no
 }
 int	main(void)
 {
-	char *argv = " juice' szl ut '  c c est   moi k la j\" vi e \" t ";
+	char *argv = "ggt  'c'eszl ' ut' ces'tm'oikajviet'y'k ";
 	t_ast_nde	*res;
 	printf("%s\n", argv);
 	res = set_quote_nde(argv);
