@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parsing_pandorasbox.c                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: svidot <svidot@student.42.fr>              +#+  +:+       +#+        */
+/*   By: seblin <seblin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/19 09:06:02 by svidot            #+#    #+#             */
-/*   Updated: 2023/12/30 19:03:17 by svidot           ###   ########.fr       */
+/*   Updated: 2023/12/31 09:04:38 by seblin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -192,17 +192,17 @@ t_ast_nde	*invert_node(t_ast_nde *node, char **argv)
 {	
 	t_ast_nde	*invrt_nde;
 
-	if (node && *argv >= node->start && *argv <= node->end)  
+	if (node && *argv >= node->start && *argv < node->end)//<= node->end)  
 	{		
-		*argv = node->end + 1;
+		*argv = node->end;
 		return (NULL);	
 	}
 	invrt_nde = create_node(INVRT);
 	invrt_nde->start = *argv;
 	if (node)
 	{	
-		invrt_nde->end = node->start - 1;
-		*argv = node->end + 1;		
+		invrt_nde->end = node->start;// - 1;
+		*argv = node->end;// + 1;		
 	}
 	while (**argv && !node)
 		invrt_nde->end = (*argv)++;
@@ -306,38 +306,25 @@ t_ast_nde	*set_space_nde(t_ast_nde *node)
 {	
 	static t_ast_nde	*spce_nde;
 	static int			flag;	
-	static char			*lcl_start;
-	static char			*lcl_end;
 	
 	if (!flag)
 		spce_nde = create_node(SPACE);	
-	while (*node->start && node->start != node->end + 1 && ft_isspace(*node->start) && !spce_nde->start)
+	while (node->start <= node->end && ft_isspace(*node->start))
 		node->start++;
-	while (*node->start && node->start != node->end + 1 && !ft_isspace(*node->start))
-	{printf("lq\n");
+	while (node->start <= node->end && !ft_isspace(*node->start))
+	{
 		if (!spce_nde->start)
 			spce_nde->start = node->start;
 		spce_nde->end = node->start;
 		node->start++;
 	}
-	if (spce_nde->start && (ft_isspace(*node->start) || !*node->start))
-	{ printf("la\n");
-		
-		// lcl_end = end;
+	if (spce_nde->start && ((node->start <= node->end && ft_isspace(*node->start)) || !*node->start))
+	{
 		flag = 0;
-		return (spce_nde);
+		return (spce_nde); // je garde le noeud entree et renvois le  noeud sortie
 	}
-	// else if (spce_nde->start && !ft_isspace(*start))
-	// {  printf("lb");
-	// 	// lcl_start = start;
-	// 	// lcl_end = end;
-	// 	flag = 0;
-	// 	return (spce_nde);
-	// }
-	printf("lc\n");
-	flag = 1;
-	
-	return (NULL);	
+	flag = 1;	
+	return (NULL);	// je change de noeud entree et garde le noeud sortie
 }
 
 // t_ast_nde	*set_space_nde(char *start, char *end, int flag)
@@ -379,7 +366,7 @@ t_ast_nde	*filter_wrapper_sp(t_ast_nde *node, t_ast_nde *(*filter)(t_ast_nde *no
 }
 int	main(void)
 {
-	char *argv = "juice' szl ut 'cc est moi k la j\"vie\"";
+	char *argv = " juice' szl ut '  c c est   moi k la j\" vi e \" t ";
 	t_ast_nde	*res;
 	printf("%s\n", argv);
 	res = set_quote_nde(argv);
