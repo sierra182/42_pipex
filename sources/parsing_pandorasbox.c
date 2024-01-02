@@ -6,7 +6,7 @@
 /*   By: seblin <seblin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/19 09:06:02 by svidot            #+#    #+#             */
-/*   Updated: 2024/01/02 20:13:48 by seblin           ###   ########.fr       */
+/*   Updated: 2024/01/02 21:07:43 by seblin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -448,21 +448,23 @@ char	clean_quotes(char *start, t_ast_nde	*qute_nde)
 char	*build_node(char *start, char *start_sav, char *end)
 {
 	char	*str;
+	char	*str_sav;
 	char	c;
 	int		i;
 
 	i = 0;
 	while (start <= end)	
 		if (clean_quotes(start++, NULL))
-			i++;
-	str = (char *) ft_calloc(sizeof(char), i + 1);
-	while (str)
+			i++;		
+	str = (char *) ft_calloc(i + 1, sizeof(char));
+	str_sav = str;
+	while (start_sav <= end)
 	{
-		c = clean_quotes(start_sav++, NULL);
+		c = clean_quotes(start_sav++, NULL);	
 		if (c)
-		*str++ = c;
-	}
-	return (str);
+			*str++ = c;	
+	}	
+	return (str_sav);
 }
 
 char	**create_array(t_ast_nde *node)
@@ -485,17 +487,74 @@ char	**build_array(t_ast_nde *node)
 	
 	array = create_array(node);
 	array_sav = array;
-	while (node)
+	while (node) 
 	{
 		*array++ = build_node(node->start, node->start, node->end);
 		node = node->sibling;
 	}
 	return (array_sav);
 }
+char	**parse_cmd(char *argv[], char *envp[], int fd_file[])
+{
+	char	**split_arg;
+	char	**split_colon;
+	char	**split_colon_sav;
+	char	*env_to_find;
+	char	*env_find;
+	char	*cmd;
+	
+	env_to_find = "PATH=";
+	env_find = NULL;
+	while (*envp)
+	{
+		if (!ft_strncmp(*envp++, env_to_find, ft_strlen(env_to_find)))
+		{
+			env_find = *--envp;			
+			break ;
+		}
+	}
+	if (!env_find)
+		return (perror("env Path not found"), exit(1), NULL);
+	split_arg = ft_split(*argv, ' ');	
+	env_find += ft_strlen(env_to_find);
+	split_colon = ft_split(env_find, ':');
+	split_colon_sav = split_colon;
+	while (*split_colon)
+	{
+		char	*s1;
 
+		s1 = ft_strjoin(*split_colon++, "/");
+		cmd = ft_strjoin(s1, *split_arg);
+		free(s1);	
+		if (!access(cmd, X_OK))
+		{
+			free(*split_arg);
+			*split_arg = cmd;
+			break;
+		}
+		free(cmd);
+		cmd = NULL;
+	}
+	if (!cmd)
+	{
+		close(fd_file[1]);
+		int i;
+		i = 0;
+		while (split_colon_sav[i])
+			free(split_colon_sav[i++]);
+		free(split_colon_sav);
+		perror(*split_arg); // command not found
+		i = 0;
+		while (split_arg[i])
+			free(split_arg[i++]);
+		free(split_arg);	
+		return (exit(1), NULL);
+	}	
+	return (split_arg);
+}
 int	main(void)
 {
-	char 		*argv = "ggt  'c'eszl ' ut' ces'tm'oikajviet'y'k ";
+	char 		*argv = "'g'gt  'c'eszl' ut\"\" ' ces'tm'oikajviet'y'k ";
 	t_ast_nde	*res;
 	printf("%s\n", argv);
 	res = set_quote_nde(argv);
@@ -510,8 +569,8 @@ int	main(void)
 	printf("\nstop\n\n");	
 	char		**f_res;
 	f_res = build_array(res);
-	// while (f_res)	
-	// 	printf("%s", *f_res++);	
+	while (*f_res)	
+		printf("%s\n", *f_res++);	
 	return (0);
 }
 
