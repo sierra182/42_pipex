@@ -6,7 +6,7 @@
 /*   By: seblin <seblin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/19 09:06:02 by svidot            #+#    #+#             */
-/*   Updated: 2024/01/02 16:10:57 by seblin           ###   ########.fr       */
+/*   Updated: 2024/01/02 20:13:48 by seblin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -415,7 +415,7 @@ t_ast_nde	*filter_wrapper_sp(t_ast_nde *node, t_ast_nde *(*filter)(t_ast_nde *no
 
 	res_sibling = NULL;
 	while (node)
-	{	//	printf("WWWWWWWWWWW\n");
+	{	
 		res_nde = filter(node);
 		if (res_nde)
 			add_sibling(res_nde, &res_sibling, &res_sibling_sav);
@@ -423,6 +423,46 @@ t_ast_nde	*filter_wrapper_sp(t_ast_nde *node, t_ast_nde *(*filter)(t_ast_nde *no
 			node = node->sibling;
 	}
 	return (res_sibling_sav);
+}
+char	clean_quotes(char *start, t_ast_nde	*qute_nde)
+{	
+	static t_ast_nde	*lcl_qute_nde;
+	t_ast_nde			*tmp_nde;
+	
+	if (qute_nde)
+	{
+		lcl_qute_nde = qute_nde;
+		return (0);	
+	}
+	tmp_nde = lcl_qute_nde;
+	while (tmp_nde)
+	{
+		if (start != tmp_nde->start && start != tmp_nde->end)
+			tmp_nde = tmp_nde->sibling;
+		else
+			return (0);
+	}
+	return (*start);	
+}
+
+char	*build_node(char *start, char *start_sav, char *end)
+{
+	char	*str;
+	char	c;
+	int		i;
+
+	i = 0;
+	while (start <= end)	
+		if (clean_quotes(start++, NULL))
+			i++;
+	str = (char *) ft_calloc(sizeof(char), i + 1);
+	while (str)
+	{
+		c = clean_quotes(start_sav++, NULL);
+		if (c)
+		*str++ = c;
+	}
+	return (str);
 }
 
 char	**create_array(t_ast_nde *node)
@@ -437,17 +477,6 @@ char	**create_array(t_ast_nde *node)
 	}
 	return (ft_calloc(sizeof(char *), i + 1));	
 }
-char	*build_node(char *start, char *end)
-{
-	char	*str;
-	while (start <= end)
-	{
-		
-		start++;
-	}
-	str = ft_calloc(sizeof(char *), i + 1)
-	return (str);
-}
 
 char	**build_array(t_ast_nde *node)
 {
@@ -458,7 +487,7 @@ char	**build_array(t_ast_nde *node)
 	array_sav = array;
 	while (node)
 	{
-		*array++ = build_node(node->start, node->end);
+		*array++ = build_node(node->start, node->start, node->end);
 		node = node->sibling;
 	}
 	return (array_sav);
@@ -466,17 +495,23 @@ char	**build_array(t_ast_nde *node)
 
 int	main(void)
 {
-	char *argv = "ggt  'c'eszl ' ut' ces'tm'oikajviet'y'k ";
+	char 		*argv = "ggt  'c'eszl ' ut' ces'tm'oikajviet'y'k ";
 	t_ast_nde	*res;
 	printf("%s\n", argv);
 	res = set_quote_nde(argv);
 	sibling_reader(res);
+	clean_quotes(NULL, res);
 	printf("\nstop\n\n");	
 	res = filter_wrapper(argv, res, invert_node);
 	sibling_reader(res);
 	printf("\nstop\n\n");	
 	res = filter_wrapper_sp(res, set_space_nde);
 	sibling_reader(res);
+	printf("\nstop\n\n");	
+	char		**f_res;
+	f_res = build_array(res);
+	// while (f_res)	
+	// 	printf("%s", *f_res++);	
 	return (0);
 }
 
