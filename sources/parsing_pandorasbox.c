@@ -6,7 +6,7 @@
 /*   By: seblin <seblin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/19 09:06:02 by svidot            #+#    #+#             */
-/*   Updated: 2023/12/31 14:06:15 by seblin           ###   ########.fr       */
+/*   Updated: 2024/01/02 16:10:57 by seblin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -424,6 +424,46 @@ t_ast_nde	*filter_wrapper_sp(t_ast_nde *node, t_ast_nde *(*filter)(t_ast_nde *no
 	}
 	return (res_sibling_sav);
 }
+
+char	**create_array(t_ast_nde *node)
+{	
+	int		i;
+	
+	i = 0;
+	while (node)
+	{
+		i++;
+		node = node->sibling;
+	}
+	return (ft_calloc(sizeof(char *), i + 1));	
+}
+char	*build_node(char *start, char *end)
+{
+	char	*str;
+	while (start <= end)
+	{
+		
+		start++;
+	}
+	str = ft_calloc(sizeof(char *), i + 1)
+	return (str);
+}
+
+char	**build_array(t_ast_nde *node)
+{
+	char	**array;
+	char	**array_sav;
+	
+	array = create_array(node);
+	array_sav = array;
+	while (node)
+	{
+		*array++ = build_node(node->start, node->end);
+		node = node->sibling;
+	}
+	return (array_sav);
+}
+
 int	main(void)
 {
 	char *argv = "ggt  'c'eszl ' ut' ces'tm'oikajviet'y'k ";
