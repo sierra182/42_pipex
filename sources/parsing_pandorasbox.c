@@ -6,12 +6,14 @@
 /*   By: seblin <seblin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/19 09:06:02 by svidot            #+#    #+#             */
-/*   Updated: 2024/01/02 21:07:43 by seblin           ###   ########.fr       */
+/*   Updated: 2024/01/02 23:16:14 by seblin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <stdlib.h>
-#include "../ft_printf/libft/libft.h"
+#include <stdio.h>
+#include <unistd.h>
+#include "libft.h"
 
 typedef enum e_tok
 {
@@ -315,6 +317,24 @@ t_ast_nde	*filter_wrapper(char *argv, t_ast_nde *node, t_ast_nde *(*filter)(t_as
 	}
 	return (res_sibling_sav);
 }
+// void	sibling_reader(t_ast_nde *node)
+// {
+// 	char	*start_sav;
+
+// 	while (node)
+// 	{
+// 		start_sav = node->start;
+// 		while (node->start <= node->end)
+// 		{		
+// 			printf("%c", *node->start);
+// 			node->start++;
+// 		}
+// 		printf("\n");
+// 		node->start = start_sav;
+// 		node = node->sibling;
+// 	}
+// }
+
 void	sibling_reader(t_ast_nde *node)
 {
 	char	*start_sav;
@@ -324,14 +344,15 @@ void	sibling_reader(t_ast_nde *node)
 		start_sav = node->start;
 		while (node->start <= node->end)
 		{		
-			printf("%c", *node->start);
+			ft_putchar_fd(*node->start, 2);
 			node->start++;
 		}
-		printf("\n");
+		ft_putchar_fd('\n', 2);
 		node->start = start_sav;
 		node = node->sibling;
 	}
 }
+
 t_ast_nde	*set_space_nde(t_ast_nde *node)
 {	
 	static t_ast_nde	*spce_nde;  // arg pour flag et inter general
@@ -429,11 +450,14 @@ char	clean_quotes(char *start, t_ast_nde	*qute_nde)
 	static t_ast_nde	*lcl_qute_nde;
 	t_ast_nde			*tmp_nde;
 	
-	if (qute_nde)
+	if (qute_nde && qute_nde->start)
 	{
+		//ft_putstr_fd("dedans\n", 2);
+	//	sleep(1);
 		lcl_qute_nde = qute_nde;
 		return (0);	
 	}
+
 	tmp_nde = lcl_qute_nde;
 	while (tmp_nde)
 	{
@@ -494,6 +518,45 @@ char	**build_array(t_ast_nde *node)
 	}
 	return (array_sav);
 }
+
+char	**create_ast(char *argv)
+{
+	//char 		*argv = "'g'gt  'c'eszl' ut\"\" ' ces'tm'oikajviet'y'k ";
+	char		**f_res;
+	int	j;
+	j = 0;
+	//(void) j;
+	t_ast_nde	*res;
+	//res = NULL;
+	//printf("%s\n", argv);
+	res = set_quote_nde(argv);
+//	sibling_reader(res);
+	sleep(1);
+	clean_quotes("null", res);
+	sleep(2);
+//	printf("\nstop\n\n");	
+	res = filter_wrapper(argv, res, invert_node);
+	usleep(20);
+//	sibling_reader(res);
+//	printf("\nstop\n\n");	
+	perror("test");
+	res = filter_wrapper_sp(res, set_space_nde);
+	usleep(20);
+	perror("test2");
+	ft_putstr_fd("quoi\n", 2);
+//	sibling_reader(res);
+//	printf("\nstop\n\n");	
+	f_res = build_array(res);
+	while (f_res && f_res[j])
+	{
+ 		ft_putstr_fd(f_res[j], 2);	
+		j++;
+	}
+	// while (*f_res)	
+	// 	ft_putstr_fd(*f_res++, 2);
+	return (f_res);
+}
+
 char	**parse_cmd(char *argv[], char *envp[], int fd_file[])
 {
 	char	**split_arg;
@@ -514,8 +577,8 @@ char	**parse_cmd(char *argv[], char *envp[], int fd_file[])
 		}
 	}
 	if (!env_find)
-		return (perror("env Path not found"), exit(1), NULL);
-	split_arg = ft_split(*argv, ' ');	
+		return (perror("env Path not found"), exit(1), NULL);	
+	split_arg = create_ast(*argv);//ft_split(*argv, ' ');	
 	env_find += ft_strlen(env_to_find);
 	split_colon = ft_split(env_find, ':');
 	split_colon_sav = split_colon;
@@ -552,27 +615,27 @@ char	**parse_cmd(char *argv[], char *envp[], int fd_file[])
 	}	
 	return (split_arg);
 }
-int	main(void)
-{
-	char 		*argv = "'g'gt  'c'eszl' ut\"\" ' ces'tm'oikajviet'y'k ";
-	t_ast_nde	*res;
-	printf("%s\n", argv);
-	res = set_quote_nde(argv);
-	sibling_reader(res);
-	clean_quotes(NULL, res);
-	printf("\nstop\n\n");	
-	res = filter_wrapper(argv, res, invert_node);
-	sibling_reader(res);
-	printf("\nstop\n\n");	
-	res = filter_wrapper_sp(res, set_space_nde);
-	sibling_reader(res);
-	printf("\nstop\n\n");	
-	char		**f_res;
-	f_res = build_array(res);
-	while (*f_res)	
-		printf("%s\n", *f_res++);	
-	return (0);
-}
+// int	main(void)
+// {
+// 	char 		*argv = "'g'gt  'c'eszl' ut\"\" ' ces'tm'oikajviet'y'k ";
+// 	t_ast_nde	*res;
+// 	printf("%s\n", argv);
+// 	res = set_quote_nde(argv);
+// 	sibling_reader(res);
+// 	clean_quotes(NULL, res);
+// 	printf("\nstop\n\n");	
+// 	res = filter_wrapper(argv, res, invert_node);
+// 	sibling_reader(res);
+// 	printf("\nstop\n\n");	
+// 	res = filter_wrapper_sp(res, set_space_nde);
+// 	sibling_reader(res);
+// 	printf("\nstop\n\n");	
+// 	char		**f_res;
+// 	f_res = build_array(res);
+// 	while (*f_res)	
+// 		printf("%s\n", *f_res++);	
+// 	return (0);
+// }
 
 /*
 void	set_token(t_ast_nde seek, char *argv)

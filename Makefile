@@ -22,7 +22,7 @@ CC = cc
 CFLAGS = -I$(LIBFT_DIR) -I$(FT_PRINTF_DIR) -Wall -Wextra -Werror
 CFLAGS_BONUS = -I$(GNL_DIR) -DEN_BONUS
 
-SOURCES = $(SRC_DIR)/main.c $(SRC_DIR)/setup.c $(SRC_DIR)/parsing.c
+SOURCES = $(SRC_DIR)/main.c $(SRC_DIR)/setup.c $(SRC_DIR)/parsing_pandorasbox.c
 SOURCES_BONUS = $(GNL_DIR)/get_next_line.c $(GNL_DIR)/get_next_line_utils.c $(SRCS_BONUS_DIR)/main.c $(SRCS_BONUS_DIR)/setup.c \
 $(SRCS_BONUS_DIR)/parsing.c 
 
