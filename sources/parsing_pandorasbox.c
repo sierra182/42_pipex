@@ -6,7 +6,7 @@
 /*   By: svidot <svidot@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/19 09:06:02 by svidot            #+#    #+#             */
-/*   Updated: 2024/01/03 11:29:29 by svidot           ###   ########.fr       */
+/*   Updated: 2024/01/03 15:12:34 by svidot           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,7 +61,19 @@ void	add_sibling(t_ast_nde *node, t_ast_nde **sibling, t_ast_nde **sibling_sav)
 	}
 }
 
-int	set_squte_nde(t_ast_nde *squte, char **argv)
+void	free_sib(t_ast_nde *sib)
+{
+	t_ast_nde	*tmp;
+
+	while (sib)
+	{
+		tmp = sib->sibling;
+		free(sib);
+		sib = tmp;
+	}
+}
+
+void	set_squte_nde(t_ast_nde *squte, t_ast_nde *sibling_sav, char **argv, int fd_file[])
 {
 	while (**argv)
 	{
@@ -78,18 +90,16 @@ int	set_squte_nde(t_ast_nde *squte, char **argv)
 		(*argv)++;
 	}
 	if (squte->start && !squte->end)
-	{
-		ft_putstr_fd("simple quote error.\n", 2); // gerer err
-		return (-1);
+	{		
+		ft_putstr_fd("simple quote error\n", 2);
+		close(fd_file[1]);
+		free_sib(sibling_sav);
+		free_sib(squte);
+		exit(1);
 	}
-	else if (!squte->start && !squte->end)
-		return (0);
-	else if (squte->start && squte->end)
-		return (1);
-	return (0);
 }
 
-int	set_dqute_nde(t_ast_nde *dqute, char **argv)
+void	set_dqute_nde(t_ast_nde *dqute, t_ast_nde *sibling_sav, char **argv, int fd_file[])
 {
 	while (**argv)
 	{
@@ -107,16 +117,15 @@ int	set_dqute_nde(t_ast_nde *dqute, char **argv)
 	}
 	if (dqute->start && !dqute->end)
 	{
-		ft_putstr_fd("double quote error.\n", 2); // gerer err
-		return (-1);
+		usleep(500);
+		ft_putstr_fd("double quote error\n", 2);
+		close(fd_file[1]);
+		free_sib(sibling_sav);
+		free_sib(dqute);
+		exit(1);
 	}
-	else if (!dqute->start && !dqute->end)
-		return (0);
-	else if (dqute->start && dqute->end)
-		return (1);
-	return (0);
 }
-t_ast_nde	*set_quote_nde(char *argv)
+t_ast_nde	*set_quote_nde(char *argv, int fd_file[])
 {
 	t_ast_nde	*qute_sibling_sav;
 	t_ast_nde	*qute_sibling;
@@ -128,14 +137,14 @@ t_ast_nde	*set_quote_nde(char *argv)
 		if (*argv == '\'')
 		{
 			qute_nde = create_node(SQUTE);
-			if (set_squte_nde(qute_nde, &argv))
-				add_sibling(qute_nde, &qute_sibling, &qute_sibling_sav);
+			set_squte_nde(qute_nde, qute_sibling_sav, &argv, fd_file);
+			add_sibling(qute_nde, &qute_sibling, &qute_sibling_sav);			
 		}
 		else if (*argv == '\"')
 		{
 			qute_nde = create_node(DQUTE);
-			if (set_dqute_nde(qute_nde, &argv))
-				add_sibling(qute_nde, &qute_sibling, &qute_sibling_sav);
+			set_dqute_nde(qute_nde, qute_sibling_sav, &argv, fd_file);
+			add_sibling(qute_nde, &qute_sibling, &qute_sibling_sav);
 		}		
 		argv++;
 	}
@@ -294,33 +303,22 @@ char	**build_array(t_ast_nde *node)
 	return (array_sav);
 }
 
-void	free_sibs(t_ast_nde *sib)
-{
-	t_ast_nde	*tmp;
 
-	while (sib)
-	{
-		tmp = sib->sibling;
-		free(sib);
-		sib = tmp;
-	}
-}
-
-char	**create_ast(char *argv)
+char	**create_ast(char *argv, int fd_file[])
 {
 	char		**ast_res;
 	t_ast_nde	*qute_sib;
 	t_ast_nde	*invrt_sib;
 	t_ast_nde	*spce_sib;
 	
-	qute_sib = set_quote_nde(argv);
+	qute_sib = set_quote_nde(argv, fd_file);
 	invrt_sib = filter_wrapper(argv, qute_sib, invert_node);
 	spce_sib = filter_wrapper_sp(invrt_sib, set_space_nde);
 	clean_quotes("null", qute_sib);
 	ast_res = build_array(spce_sib);
-	free_sibs(qute_sib);
-	free_sibs(invrt_sib);
-	free_sibs(spce_sib);
+	free_sib(qute_sib);
+	free_sib(invrt_sib);
+	free_sib(spce_sib);
 	return (ast_res);
 }
 
@@ -340,20 +338,38 @@ char	*search_path(char *envp[])
 		}
 	}
 	if (!env_find)
-		return (ft_putstr_fd("env PATH not found.\n", 2), close(fd_file[1]), exit(1), NULL);
+		return (NULL);
 	env_find += ft_strlen(env_to_find);
-	return (env_find)
+	return (env_find);
+}
+void	free_ptr_arr(char **arr)
+{
+	int i;
+
+	if (arr)
+	{		
+		i = 0;
+		while (arr[i])
+			free(arr[i++]);
+		free(arr);
+	}
 }
 
-char	*try_paths(char **split_colon, char **split_arg, char *cmd)
+char	*try_paths(char **split_arg, char *env_find)
 {	
-	while (*split_colon)
+	char	*cmd;
+	char	**split_colon;
+	char	**split_colon_sav;
+	char	*tmp;
+	
+	cmd = NULL;	
+	split_colon = ft_split(env_find, ':');
+	split_colon_sav = split_colon;
+	while (split_colon && *split_colon)
 	{
-		char	*s1;
-
-		s1 = ft_strjoin(*split_colon++, "/");
-		cmd = ft_strjoin(s1, *split_arg);
-		free(s1);	
+		tmp = ft_strjoin(*split_colon++, "/");
+		cmd = ft_strjoin(tmp, *split_arg);
+		free(tmp);	
 		if (!access(cmd, X_OK))
 		{
 			free(*split_arg);
@@ -363,36 +379,29 @@ char	*try_paths(char **split_colon, char **split_arg, char *cmd)
 		free(cmd);
 		cmd = NULL;
 	}
+	free_ptr_arr(split_colon_sav);
 	return (cmd);
 }
 
 char	**parse_cmd(char *argv[], char *envp[], int fd_file[])
 {
-	char	**split_arg;
-	char	**split_colon;
+	char	**split_arg;	
 	char	*env_find;
-	char	*cmd;
-
+	
 	env_find = search_path(envp);
 	if (!env_find)
-		return (ft_putstr_fd("env PATH not found.\n", 2), close(fd_file[1]), exit(1), NULL);
-	split_arg = create_ast(*argv);
-	split_colon = ft_split(env_find, ':');
-	cmd = try_paths(split_colon, split_arg, cmd);
-	if (!cmd)
 	{
-		close(fd_file[1]); 
-		int i;
-		i = 0;
-		while (split_colon_sav[i])
-			free(split_colon_sav[i++]);
-		free(split_colon_sav);
-		perror(*split_arg); // command not found
-		i = 0;
-		while (split_arg[i])
-			free(split_arg[i++]);
-		free(split_arg);	
-		return (exit(1), NULL);
-	}	
+		ft_putstr_fd("env PATH not found.\n", 2);
+		close(fd_file[1]);
+		exit(1);		
+	}
+	split_arg = create_ast(*argv, fd_file);
+	if (!try_paths(split_arg, env_find))
+	{		
+		close(fd_file[1]);
+		perror(*split_arg);	 
+		free_ptr_arr(split_arg);
+		exit(1);	
+	}
 	return (split_arg);
 }
