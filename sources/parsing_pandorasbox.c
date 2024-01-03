@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parsing_pandorasbox.c                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: seblin <seblin@student.42.fr>              +#+  +:+       +#+        */
+/*   By: svidot <svidot@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/19 09:06:02 by svidot            #+#    #+#             */
-/*   Updated: 2024/01/02 23:16:14 by seblin           ###   ########.fr       */
+/*   Updated: 2024/01/03 08:41:48 by svidot           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,7 +49,7 @@ t_ast_nde	*create_node(t_tok token)
 
 void	add_sibling(t_ast_nde *node, t_ast_nde **sibling, t_ast_nde **sibling_sav)
 {
-	if (!*sibling)			
+	if (!*sibling_sav)			
 	{
 		*sibling = node;
 		*sibling_sav = *sibling;
@@ -122,7 +122,8 @@ t_ast_nde	*set_quote_nde(char *argv)
 	t_ast_nde	*qute_sibling;
 	t_ast_nde	*qute_nde;
 	
-	qute_sibling = NULL;
+	qute_sibling_sav = NULL;
+	//qute_sibling = NULL;
 	while (*argv)
 	{
 		if (*argv == '\'')
@@ -307,7 +308,8 @@ t_ast_nde	*filter_wrapper(char *argv, t_ast_nde *node, t_ast_nde *(*filter)(t_as
 	t_ast_nde	*res_sibling;
 	t_ast_nde	*res_sibling_sav;
 
-	res_sibling = NULL;
+	//res_sibling = NULL;
+	res_sibling_sav = NULL;
 	while (node || *argv)
 	{
 		res_nde = filter(node, &argv);
@@ -347,7 +349,7 @@ void	sibling_reader(t_ast_nde *node)
 			ft_putchar_fd(*node->start, 2);
 			node->start++;
 		}
-		ft_putchar_fd('\n', 2);
+		ft_putstr_fd("sib_reader:\n", 2);
 		node->start = start_sav;
 		node = node->sibling;
 	}
@@ -434,7 +436,8 @@ t_ast_nde	*filter_wrapper_sp(t_ast_nde *node, t_ast_nde *(*filter)(t_ast_nde *no
 	t_ast_nde	*res_sibling;
 	t_ast_nde	*res_sibling_sav;
 
-	res_sibling = NULL;
+	//res_sibling = NULL;
+	res_sibling_sav = NULL;
 	while (node)
 	{	
 		res_nde = filter(node);
@@ -452,12 +455,9 @@ char	clean_quotes(char *start, t_ast_nde	*qute_nde)
 	
 	if (qute_nde && qute_nde->start)
 	{
-		//ft_putstr_fd("dedans\n", 2);
-	//	sleep(1);
 		lcl_qute_nde = qute_nde;
 		return (0);	
 	}
-
 	tmp_nde = lcl_qute_nde;
 	while (tmp_nde)
 	{
@@ -519,6 +519,18 @@ char	**build_array(t_ast_nde *node)
 	return (array_sav);
 }
 
+void	free_sibs(t_ast_nde *sib)
+{
+	t_ast_nde	*tmp;
+	
+	while (sib)
+	{
+		tmp = sib->sibling;
+		free(sib);
+		sib = tmp;
+	}
+}
+
 char	**create_ast(char *argv)
 {
 	//char 		*argv = "'g'gt  'c'eszl' ut\"\" ' ces'tm'oikajviet'y'k ";
@@ -526,32 +538,38 @@ char	**create_ast(char *argv)
 	int	j;
 	j = 0;
 	//(void) j;
-	t_ast_nde	*res;
+	t_ast_nde	*qute_sib;
+	t_ast_nde	*invrt_sib;
+	t_ast_nde	*spce_sib;
 	//res = NULL;
 	//printf("%s\n", argv);
-	res = set_quote_nde(argv);
-//	sibling_reader(res);
-	sleep(1);
-	clean_quotes("null", res);
-	sleep(2);
+	qute_sib = set_quote_nde(argv);
+	//sibling_reader(res);
+	//sleep(1);
+	clean_quotes("null", qute_sib);
+//	sleep(2);
 //	printf("\nstop\n\n");	
-	res = filter_wrapper(argv, res, invert_node);
-	usleep(20);
+	invrt_sib = filter_wrapper(argv, qute_sib, invert_node);
+	//sibling_reader(res);
+//	usleep(20);
 //	sibling_reader(res);
 //	printf("\nstop\n\n");	
 	perror("test");
-	res = filter_wrapper_sp(res, set_space_nde);
-	usleep(20);
+	spce_sib = filter_wrapper_sp(invrt_sib, set_space_nde);
+//	usleep(20);
 	perror("test2");
 	ft_putstr_fd("quoi\n", 2);
 //	sibling_reader(res);
 //	printf("\nstop\n\n");	
-	f_res = build_array(res);
-	while (f_res && f_res[j])
-	{
- 		ft_putstr_fd(f_res[j], 2);	
-		j++;
-	}
+	f_res = build_array(spce_sib);
+	while (f_res && f_res[j])	
+	{		
+ 		ft_putstr_fd(f_res[j++], 2);
+		ft_putstr_fd("\n", 2);			
+	}	
+	free_sibs(qute_sib);
+	free_sibs(invrt_sib);
+	free_sibs(spce_sib);
 	// while (*f_res)	
 	// 	ft_putstr_fd(*f_res++, 2);
 	return (f_res);
@@ -577,7 +595,7 @@ char	**parse_cmd(char *argv[], char *envp[], int fd_file[])
 		}
 	}
 	if (!env_find)
-		return (perror("env Path not found"), exit(1), NULL);	
+		return (perror("env Path not found"), exit(1), NULL);	// gerer pas de envpath !!!!!!!!!!! ++ fds
 	split_arg = create_ast(*argv);//ft_split(*argv, ' ');	
 	env_find += ft_strlen(env_to_find);
 	split_colon = ft_split(env_find, ':');
