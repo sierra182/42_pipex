@@ -6,7 +6,7 @@
 /*   By: svidot <svidot@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/19 09:06:02 by svidot            #+#    #+#             */
-/*   Updated: 2024/01/03 15:12:34 by svidot           ###   ########.fr       */
+/*   Updated: 2024/01/03 15:29:21 by svidot           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -183,6 +183,15 @@ t_ast_nde	*filter_wrapper(char *argv, t_ast_nde *node, t_ast_nde *(*filter)(t_as
 	}
 	return (res_sibling_sav);
 }
+void	*free_spce_nde_if_empty(t_ast_nde *spce_nde, int *flag)
+{
+	if (!spce_nde->start)
+	{	
+		*flag = 0;
+		free(spce_nde);		
+	}
+	return (NULL);
+}
 
 t_ast_nde	*set_space_nde(t_ast_nde *node)
 {	
@@ -197,8 +206,7 @@ t_ast_nde	*set_space_nde(t_ast_nde *node)
 	{
 		if (!spce_nde->start)
 			spce_nde->start = node->start;
-		spce_nde->end = node->start;
-		node->start++;
+		spce_nde->end = node->start++;		
 	}
 	if (spce_nde->start && (node->start <= node->end || !*node->start))
 	{
@@ -206,12 +214,7 @@ t_ast_nde	*set_space_nde(t_ast_nde *node)
 		return (spce_nde);
 	}
 	flag = 1;
-	if (!spce_nde->start)
-	{	
-		flag = 0;
-		free(spce_nde);		
-	}
-	return (NULL);
+	return (free_spce_nde_if_empty(spce_nde, &flag));
 }
 
 t_ast_nde	*filter_wrapper_sp(t_ast_nde *node, t_ast_nde *(*filter)(t_ast_nde *node))
@@ -302,7 +305,6 @@ char	**build_array(t_ast_nde *node)
 	}
 	return (array_sav);
 }
-
 
 char	**create_ast(char *argv, int fd_file[])
 {
