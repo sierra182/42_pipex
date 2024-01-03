@@ -1,16 +1,16 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   parsing_utils 3.c                                  :+:      :+:    :+:   */
+/*   parsing_build.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: svidot <svidot@student.42.fr>              +#+  +:+       +#+        */
+/*   By: seblin <seblin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/03 16:08:19 by svidot            #+#    #+#             */
-/*   Updated: 2024/01/03 16:29:34 by svidot           ###   ########.fr       */
+/*   Updated: 2024/01/03 20:21:46 by seblin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-char	*build_node(char *start, char *start_sav, char *end)
+static char	*build_node(char *start, char *start_sav, char *end)
 {
 	char	*str;
 	char	*str_sav;
@@ -32,20 +32,17 @@ char	*build_node(char *start, char *start_sav, char *end)
 	return (str_sav);
 }
 
-char	**create_array(t_ast_nde *node)
+static char	**create_array(t_ast_nde *node)
 {	
 	int		i;
 
 	i = 0;
-	while (node)
-	{
-		i++;
-		node = node->sibling;
-	}
+	while (node && ++i)
+		node = node->sibling;	
 	return (ft_calloc(sizeof(char *), i + 1));	
 }
 
-char	**build_array(t_ast_nde *node)
+static char	**build_array(t_ast_nde *node)
 {
 	char	**array;
 	char	**array_sav;

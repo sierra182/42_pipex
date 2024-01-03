@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   parsing_utils 2.c                                  :+:      :+:    :+:   */
+/*   parsing_qute.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: svidot <svidot@student.42.fr>              +#+  +:+       +#+        */
+/*   By: seblin <seblin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/03 16:08:19 by svidot            #+#    #+#             */
-/*   Updated: 2024/01/03 16:35:38 by svidot           ###   ########.fr       */
+/*   Updated: 2024/01/03 20:29:35 by seblin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,7 @@ char	clean_quotes(char *start, t_ast_nde	*qute_nde)
 	return (*start);	
 }
 
-void	set_dqute_nde(t_ast_nde *dqute, t_ast_nde *sibling_sav, char **argv, int fd_file[])
+static void	set_dqute_nde(t_ast_nde *dqute, t_ast_nde *sibling_sav, char **argv, int fd_file[])
 {
 	while (**argv)
 	{
@@ -58,7 +58,7 @@ void	set_dqute_nde(t_ast_nde *dqute, t_ast_nde *sibling_sav, char **argv, int fd
 	}
 }
 
-void	set_squte_nde(t_ast_nde *squte, t_ast_nde *sibling_sav, char **argv, int fd_file[])
+static void	set_squte_nde(t_ast_nde *squte, t_ast_nde *sibling_sav, char **argv, int fd_file[])
 {
 	while (**argv)
 	{

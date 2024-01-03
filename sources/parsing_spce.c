@@ -1,16 +1,16 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   parsing_utils 4.c                                  :+:      :+:    :+:   */
+/*   parsing_spce.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: svidot <svidot@student.42.fr>              +#+  +:+       +#+        */
+/*   By: seblin <seblin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/03 16:08:19 by svidot            #+#    #+#             */
-/*   Updated: 2024/01/03 16:28:41 by svidot           ###   ########.fr       */
+/*   Updated: 2024/01/03 20:26:46 by seblin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-void	*free_spce_nde_if_empty(t_ast_nde *spce_nde, int *flag)
+static void	*free_spce_nde_if_empty(t_ast_nde *spce_nde, int *flag)
 {
 	if (!spce_nde->start)
 	{	

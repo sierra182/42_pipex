@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   parsing_pandorasbox.c                              :+:      :+:    :+:   */
+/*   parsing_path.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: svidot <svidot@student.42.fr>              +#+  +:+       +#+        */
+/*   By: seblin <seblin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/19 09:06:02 by svidot            #+#    #+#             */
-/*   Updated: 2024/01/03 16:34:06 by svidot           ###   ########.fr       */
+/*   Updated: 2024/01/03 19:51:11 by seblin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@
 #include "libft.h"
 //#include "parsing.h"
 
-char	*try_paths(char **split_arg, char *env_find)
+static char	*try_paths(char **split_arg, char *env_find)
 {	
 	char	*cmd;
 	char	**split_colon;
@@ -44,21 +44,19 @@ char	*try_paths(char **split_arg, char *env_find)
 	return (cmd);
 }
 
-char	*search_path(char *envp[])
+static char	*search_path(char *envp[])
 {
 	char	*env_to_find;
 	char	*env_find;
 
 	env_to_find = "PATH=";
 	env_find = NULL;
-	while (*envp)
-	{
+	while (*envp)	
 		if (!ft_strncmp(*envp++, env_to_find, ft_strlen(env_to_find)))
 		{
 			env_find = *--envp;
 			break ;
-		}
-	}
+		}	
 	if (!env_find)
 		return (NULL);
 	env_find += ft_strlen(env_to_find);
