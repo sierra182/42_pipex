@@ -6,7 +6,7 @@
 /*   By: svidot <svidot@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/20 10:17:43 by svidot            #+#    #+#             */
-/*   Updated: 2023/12/20 12:48:00 by svidot           ###   ########.fr       */
+/*   Updated: 2024/01/03 10:03:10 by svidot           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -119,7 +119,7 @@ char	**parse_cmd(char *argv[], char *envp[], int fd_file[])
 		}
 	}
 	if (!env_find)
-		return (perror("env Path not found"), exit(1), NULL);
+		return (perror("env Path not found"), close(fd_file[1]), exit(1), NULL);
 	split_arg = ft_split(*argv, ' ');	
 	//join_simplequote(split_arg);	
 	env_find += ft_strlen(env_to_find);

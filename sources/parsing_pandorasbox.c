@@ -6,7 +6,7 @@
 /*   By: svidot <svidot@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/19 09:06:02 by svidot            #+#    #+#             */
-/*   Updated: 2024/01/03 08:41:48 by svidot           ###   ########.fr       */
+/*   Updated: 2024/01/03 10:00:12 by svidot           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -595,7 +595,7 @@ char	**parse_cmd(char *argv[], char *envp[], int fd_file[])
 		}
 	}
 	if (!env_find)
-		return (perror("env Path not found"), exit(1), NULL);	// gerer pas de envpath !!!!!!!!!!! ++ fds
+		return (ft_putstr_fd("env PATH not found.\n", 2), exit(1), NULL);	// gerer pas de envpath !!!!!!!!!!! ++ fds
 	split_arg = create_ast(*argv);//ft_split(*argv, ' ');	
 	env_find += ft_strlen(env_to_find);
 	split_colon = ft_split(env_find, ':');
@@ -618,7 +618,8 @@ char	**parse_cmd(char *argv[], char *envp[], int fd_file[])
 	}
 	if (!cmd)
 	{
-		close(fd_file[1]);
+		close(fd_file[1]); 
+	//	(void) (fd_file);
 		int i;
 		i = 0;
 		while (split_colon_sav[i])
