@@ -1,5 +1,0 @@
-./pipex file1 "ls -l" "wc -l" f2
-< file1 | ls -l | wc -l > f2
-
-./pipex file1 "grep ici" "wc -w" f2
-< file1 | grep ici | wc -w > f2
