@@ -6,21 +6,24 @@
 /*   By: svidot <svidot@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/03 16:08:19 by svidot            #+#    #+#             */
-/*   Updated: 2024/01/04 10:43:44 by svidot           ###   ########.fr       */
+/*   Updated: 2024/01/04 11:38:15 by svidot           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include <unistd.h>
+#include <stdlib.h>
+#include "libft.h"
 #include "parsing_utils.h"
 
 char	clean_quotes(char *start, t_ast_nde	*qute_nde)
 {	
 	static t_ast_nde	*lcl_qute_nde;
 	t_ast_nde			*tmp_nde;
-	
+
 	if (qute_nde && qute_nde->start)
 	{
 		lcl_qute_nde = qute_nde;
-		return (0);	
+		return (0);
 	}
 	tmp_nde = lcl_qute_nde;
 	while (tmp_nde)
@@ -30,10 +33,11 @@ char	clean_quotes(char *start, t_ast_nde	*qute_nde)
 		else
 			return (0);
 	}
-	return (*start);	
+	return (*start);
 }
 
-static void	set_dqute_nde(t_ast_nde *dqute, t_ast_nde *sibling_sav, char **argv, int fd_file[])
+static void	set_dqute_nde(t_ast_nde *dqute, t_ast_nde *sibling_sav,
+							char **argv, int fd_file[])
 {
 	while (**argv)
 	{
@@ -50,8 +54,7 @@ static void	set_dqute_nde(t_ast_nde *dqute, t_ast_nde *sibling_sav, char **argv,
 		(*argv)++;
 	}
 	if (dqute->start && !dqute->end)
-	{
-		usleep(500);
+	{		
 		ft_putstr_fd("double quote error\n", 2);
 		close(fd_file[1]);
 		free_sib(sibling_sav);
@@ -60,7 +63,8 @@ static void	set_dqute_nde(t_ast_nde *dqute, t_ast_nde *sibling_sav, char **argv,
 	}
 }
 
-static void	set_squte_nde(t_ast_nde *squte, t_ast_nde *sibling_sav, char **argv, int fd_file[])
+static void	set_squte_nde(t_ast_nde *squte, t_ast_nde *sibling_sav,
+							char **argv, int fd_file[])
 {
 	while (**argv)
 	{
@@ -91,7 +95,7 @@ t_ast_nde	*set_quote_nde(char *argv, int fd_file[])
 	t_ast_nde	*qute_sibling_sav;
 	t_ast_nde	*qute_sibling;
 	t_ast_nde	*qute_nde;
-	
+
 	qute_sibling_sav = NULL;
 	while (*argv)
 	{
@@ -99,14 +103,14 @@ t_ast_nde	*set_quote_nde(char *argv, int fd_file[])
 		{
 			qute_nde = create_node(SQUTE);
 			set_squte_nde(qute_nde, qute_sibling_sav, &argv, fd_file);
-			add_sibling(qute_nde, &qute_sibling, &qute_sibling_sav);			
+			add_sibling(qute_nde, &qute_sibling, &qute_sibling_sav);
 		}
 		else if (*argv == '\"')
 		{
 			qute_nde = create_node(DQUTE);
 			set_dqute_nde(qute_nde, qute_sibling_sav, &argv, fd_file);
 			add_sibling(qute_nde, &qute_sibling, &qute_sibling_sav);
-		}		
+		}
 		argv++;
 	}
 	return (qute_sibling_sav);

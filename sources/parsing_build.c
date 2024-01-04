@@ -6,10 +6,11 @@
 /*   By: svidot <svidot@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/03 16:08:19 by svidot            #+#    #+#             */
-/*   Updated: 2024/01/04 10:50:23 by svidot           ###   ########.fr       */
+/*   Updated: 2024/01/04 11:40:04 by svidot           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include "libft.h"
 #include "parsing_qute.h"
 #include "parsing_invrt.h"
 #include "parsing_spce.h"
@@ -22,28 +23,28 @@ static char	*build_node(char *start, char *start_sav, char *end)
 	int		i;
 
 	i = 0;
-	while (start <= end)	
+	while (start <= end)
 		if (clean_quotes(start++, NULL))
-			i++;		
+			i++;
 	str = (char *) ft_calloc(i + 1, sizeof(char));
 	str_sav = str;
 	while (start_sav <= end)
 	{
-		c = clean_quotes(start_sav++, NULL);	
+		c = clean_quotes(start_sav++, NULL);
 		if (c)
-			*str++ = c;	
-	}	
+			*str++ = c;
+	}
 	return (str_sav);
 }
 
 static char	**create_array(t_ast_nde *node)
 {	
-	int		i;
+	int	i;
 
 	i = 0;
 	while (node && ++i)
-		node = node->sibling;	
-	return (ft_calloc(sizeof(char *), i + 1));	
+		node = node->sibling;
+	return (ft_calloc(sizeof(char *), i + 1));
 }
 
 static char	**build_array(t_ast_nde *node)
@@ -53,7 +54,7 @@ static char	**build_array(t_ast_nde *node)
 
 	array = create_array(node);
 	array_sav = array;
-	while (node) 
+	while (node)
 	{
 		*array++ = build_node(node->start, node->start, node->end);
 		node = node->sibling;
@@ -67,7 +68,7 @@ char	**create_ast(char *argv, int fd_file[])
 	t_ast_nde	*qute_sib;
 	t_ast_nde	*invrt_sib;
 	t_ast_nde	*spce_sib;
-	
+
 	qute_sib = set_quote_nde(argv, fd_file);
 	invrt_sib = filter_wrapper_invrt(argv, qute_sib, invert_node);
 	spce_sib = filter_wrapper_spce(invrt_sib, set_space_nde);

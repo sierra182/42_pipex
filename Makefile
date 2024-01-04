@@ -13,16 +13,19 @@
 LIBFT_DIR = ft_printf/libft
 FT_PRINTF_DIR = ft_printf
 SRC_DIR = sources
+HEADERS_DIR = include
 
 BONUS_DIR = bonus
 SRCS_BONUS_DIR = $(BONUS_DIR)/sources
 GNL_DIR = $(BONUS_DIR)/gnl
 
 CC = cc
-CFLAGS = -I$(LIBFT_DIR) -I$(FT_PRINTF_DIR) -Wall -Wextra -Werror
+CFLAGS = -I$(LIBFT_DIR) -I$(FT_PRINTF_DIR) -I$(HEADERS_DIR) -Wall -Wextra -Werror
 CFLAGS_BONUS = -I$(GNL_DIR) -DEN_BONUS
 
-SOURCES = $(SRC_DIR)/main.c $(SRC_DIR)/setup.c $(SRC_DIR)/parsing_pandorasbox.c
+SOURCES = $(SRC_DIR)/main.c $(SRC_DIR)/setup.c $(SRC_DIR)/parsing_path.c $(SRC_DIR)/parsing_build.c $(SRC_DIR)/parsing_invrt.c \
+$(SRC_DIR)/parsing_qute.c $(SRC_DIR)/parsing_spce.c $(SRC_DIR)/parsing_utils.c
+
 SOURCES_BONUS = $(GNL_DIR)/get_next_line.c $(GNL_DIR)/get_next_line_utils.c $(SRCS_BONUS_DIR)/main.c $(SRCS_BONUS_DIR)/setup.c \
 $(SRCS_BONUS_DIR)/parsing.c 
 
@@ -33,7 +36,9 @@ LIBFTPRINTF = $(FT_PRINTF_DIR)/libftprintf.a
 NAME = pipex
 NAME_BONUS = $(BONUS_DIR)/pipex
 
-HEADER = $(SRC_DIR)/setup.h
+HEADER = $(HEADERS_DIR)/bonus.h $(HEADERS_DIR)/setup.h $(HEADERS_DIR)/parsing_build.h $(HEADERS_DIR)/parsing_invrt.h \
+$(HEADERS_DIR)/parsing_qute.h $(HEADERS_DIR)/parsing_spce.h $(HEADERS_DIR)/parsing_utils.h
+
 HEADERS_BONUS = $(GNL_DIR)/get_next_line.h $(SRCS_BONUS_DIR)/setup.h
 
 .PHONY: all ft_printf bonus clean fclean re intro l newline backline emoticon

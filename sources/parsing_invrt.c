@@ -6,10 +6,11 @@
 /*   By: svidot <svidot@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/03 16:08:19 by svidot            #+#    #+#             */
-/*   Updated: 2024/01/04 10:43:02 by svidot           ###   ########.fr       */
+/*   Updated: 2024/01/04 11:43:09 by svidot           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include <string.h>
 #include "parsing_utils.h"
 
 t_ast_nde	*invert_node(t_ast_nde *node, char **argv)
@@ -19,7 +20,7 @@ t_ast_nde	*invert_node(t_ast_nde *node, char **argv)
 	invrt_nde = create_node(INVRT);
 	invrt_nde->start = *argv;
 	if (node)
-	{	
+	{
 		invrt_nde->end = node->start;
 		*argv = node->end;
 	}
@@ -28,7 +29,8 @@ t_ast_nde	*invert_node(t_ast_nde *node, char **argv)
 	return (invrt_nde);
 }
 
-t_ast_nde	*filter_wrapper_invrt(char *argv, t_ast_nde *node, t_ast_nde *(*filter)(t_ast_nde *, char **))
+t_ast_nde	*filter_wrapper_invrt(char *argv, t_ast_nde *node,
+									t_ast_nde *(*filter)(t_ast_nde *, char **))
 {
 	t_ast_nde	*res_nde;
 	t_ast_nde	*res_sibling;
@@ -39,7 +41,7 @@ t_ast_nde	*filter_wrapper_invrt(char *argv, t_ast_nde *node, t_ast_nde *(*filter
 	{
 		res_nde = filter(node, &argv);
 		add_sibling(res_nde, &res_sibling, &res_sibling_sav);
-		if (node)	
+		if (node)
 			node = node->sibling;
 	}
 	return (res_sibling_sav);

@@ -6,10 +6,12 @@
 /*   By: svidot <svidot@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/03 16:08:19 by svidot            #+#    #+#             */
-/*   Updated: 2024/01/04 10:12:03 by svidot           ###   ########.fr       */
+/*   Updated: 2024/01/04 11:36:22 by svidot           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include <stdlib.h>
+#include "libft.h"
 #include "parsing_utils.h"
 
 static void	*free_spce_nde_if_empty(t_ast_nde *spce_nde, int *flag)
@@ -17,7 +19,7 @@ static void	*free_spce_nde_if_empty(t_ast_nde *spce_nde, int *flag)
 	if (!spce_nde->start)
 	{	
 		*flag = 0;
-		free(spce_nde);		
+		free(spce_nde);
 	}
 	return (NULL);
 }
@@ -35,7 +37,7 @@ t_ast_nde	*set_space_nde(t_ast_nde *node)
 	{
 		if (!spce_nde->start)
 			spce_nde->start = node->start;
-		spce_nde->end = node->start++;		
+		spce_nde->end = node->start++;
 	}
 	if (spce_nde->start && (node->start <= node->end || !*node->start))
 	{
@@ -46,7 +48,8 @@ t_ast_nde	*set_space_nde(t_ast_nde *node)
 	return (free_spce_nde_if_empty(spce_nde, &flag));
 }
 
-t_ast_nde	*filter_wrapper_spce(t_ast_nde *node, t_ast_nde *(*filter)(t_ast_nde *node))
+t_ast_nde	*filter_wrapper_spce(t_ast_nde *node,
+									t_ast_nde *(*filter)(t_ast_nde *node))
 {
 	t_ast_nde	*res_nde;
 	t_ast_nde	*res_sibling;
@@ -54,7 +57,7 @@ t_ast_nde	*filter_wrapper_spce(t_ast_nde *node, t_ast_nde *(*filter)(t_ast_nde *
 
 	res_sibling_sav = NULL;
 	while (node)
-	{	
+	{
 		res_nde = filter(node);
 		if (res_nde)
 			add_sibling(res_nde, &res_sibling, &res_sibling_sav);

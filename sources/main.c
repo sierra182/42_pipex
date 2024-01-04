@@ -6,7 +6,7 @@
 /*   By: svidot <svidot@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/19 15:23:23 by svidot            #+#    #+#             */
-/*   Updated: 2024/01/04 10:02:00 by svidot           ###   ########.fr       */
+/*   Updated: 2024/01/04 11:12:52 by svidot           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,8 @@
 #include "libft.h"
 #include "setup.h"
 #include "bonus.h"
+
+char	**parse_cmd(char *argv[], char *envp[], int fd_file[]);
 
 void	set_pipe_forward(int pipefd_in[], int pipefd_out[])
 {
