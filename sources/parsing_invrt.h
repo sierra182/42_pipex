@@ -1,18 +1,21 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   parsing.h                                          :+:      :+:    :+:   */
+/*   parsing_invrt.h                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: svidot <svidot@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/01/03 16:08:55 by svidot            #+#    #+#             */
-/*   Updated: 2024/01/04 10:21:09 by svidot           ###   ########.fr       */
+/*   Created: 2023/12/21 15:27:14 by svidot            #+#    #+#             */
+/*   Updated: 2024/01/04 10:28:46 by svidot           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef PARSING_H
-# define PARSING_H
+#ifndef PARSING_INVRT_H
+# define PARSING_INVRT_H
 
+#include "parsing_utils.h"
 
+t_ast_nde	*invert_node(t_ast_nde *node, char **argv);
+t_ast_nde	*filter_wrapper_invrt(char *argv, t_ast_nde *node, t_ast_nde *(*filter)(t_ast_nde *, char **));
 
 #endif

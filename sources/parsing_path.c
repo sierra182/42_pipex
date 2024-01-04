@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parsing_path.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: seblin <seblin@student.42.fr>              +#+  +:+       +#+        */
+/*   By: svidot <svidot@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/19 09:06:02 by svidot            #+#    #+#             */
-/*   Updated: 2024/01/03 19:51:11 by seblin           ###   ########.fr       */
+/*   Updated: 2024/01/04 10:55:11 by svidot           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include "libft.h"
-//#include "parsing.h"
+#include "parsing_build.h"
 
 static char	*try_paths(char **split_arg, char *env_find)
 {	

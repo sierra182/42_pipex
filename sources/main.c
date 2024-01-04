@@ -6,7 +6,7 @@
 /*   By: svidot <svidot@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/19 15:23:23 by svidot            #+#    #+#             */
-/*   Updated: 2024/01/03 15:57:32 by svidot           ###   ########.fr       */
+/*   Updated: 2024/01/04 10:02:00 by svidot           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,12 +20,7 @@
 #include "ft_printf.h"
 #include "libft.h"
 #include "setup.h"
-#define BONUS 0
-#ifdef EN_BONUS
-# include "get_next_line.h"
-# undef BONUS
-# define BONUS 1
-#endif
+#include "bonus.h"
 
 void	set_pipe_forward(int pipefd_in[], int pipefd_out[])
 {

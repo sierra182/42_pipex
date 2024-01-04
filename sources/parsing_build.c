@@ -3,12 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   parsing_build.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: seblin <seblin@student.42.fr>              +#+  +:+       +#+        */
+/*   By: svidot <svidot@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/03 16:08:19 by svidot            #+#    #+#             */
-/*   Updated: 2024/01/03 20:21:46 by seblin           ###   ########.fr       */
+/*   Updated: 2024/01/04 10:50:23 by svidot           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
+
+#include "parsing_qute.h"
+#include "parsing_invrt.h"
+#include "parsing_spce.h"
 
 static char	*build_node(char *start, char *start_sav, char *end)
 {

@@ -3,12 +3,14 @@
 /*                                                        :::      ::::::::   */
 /*   parsing_qute.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: seblin <seblin@student.42.fr>              +#+  +:+       +#+        */
+/*   By: svidot <svidot@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/03 16:08:19 by svidot            #+#    #+#             */
-/*   Updated: 2024/01/03 20:29:35 by seblin           ###   ########.fr       */
+/*   Updated: 2024/01/04 10:43:44 by svidot           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
+
+#include "parsing_utils.h"
 
 char	clean_quotes(char *start, t_ast_nde	*qute_nde)
 {	

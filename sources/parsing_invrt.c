@@ -3,12 +3,14 @@
 /*                                                        :::      ::::::::   */
 /*   parsing_invrt.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: seblin <seblin@student.42.fr>              +#+  +:+       +#+        */
+/*   By: svidot <svidot@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/03 16:08:19 by svidot            #+#    #+#             */
-/*   Updated: 2024/01/03 20:25:12 by seblin           ###   ########.fr       */
+/*   Updated: 2024/01/04 10:43:02 by svidot           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
+
+#include "parsing_utils.h"
 
 t_ast_nde	*invert_node(t_ast_nde *node, char **argv)
 {	
