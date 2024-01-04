@@ -61,7 +61,7 @@ ft_printf: emoticon
 	@$(MAKE) -s -C $(FT_PRINTF_DIR) 
 
 $(NAME) : $(OBJECTS) 
-	@echo "\n\033[0;32m linking $(NAME) objects with $(LIBFTPRINTF)...\033[0m 🚀\n\n 💗 💗 💗 💗\n"
+	@echo "\n\033[0;32m linking $(NAME) objects with $(LIBFTPRINTF)...\033[0m 🚀\n\n 💗 💎 💎 💗\n"
 	@$(CC) $(OBJECTS) $(LIBFTPRINTF) -o $@
 
 bonus: ft_printf $(NAME_BONUS)
