@@ -6,7 +6,7 @@
 /*   By: svidot <svidot@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/19 09:06:02 by svidot            #+#    #+#             */
-/*   Updated: 2024/01/04 11:42:29 by svidot           ###   ########.fr       */
+/*   Updated: 2024/01/04 14:56:00 by svidot           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,7 +57,7 @@ static char	*search_path(char *envp[])
 		{
 			env_find = *--envp;
 			break ;
-		}		
+		}
 	}
 	if (!env_find)
 		return (NULL);

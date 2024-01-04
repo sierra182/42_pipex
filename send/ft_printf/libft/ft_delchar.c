@@ -6,19 +6,19 @@
 /*   By: svidot <svidot@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/11 16:15:53 by svidot            #+#    #+#             */
-/*   Updated: 2023/12/11 16:39:54 by svidot           ###   ########.fr       */
+/*   Updated: 2024/01/04 14:58:57 by svidot           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 char	*ft_delchar(char *s)
 {
 	char	*s_save;
-	
+
 	s_save = s;
 	while (*s)
 	{
 		*s = *(s + 1);
-		s++;	
+		s++;
 	}
 	return (s_save);
 }
