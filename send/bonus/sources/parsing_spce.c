@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parsing_spce.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: svidot <svidot@student.42.fr>              +#+  +:+       +#+        */
+/*   By: seblin <seblin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/03 16:08:19 by svidot            #+#    #+#             */
-/*   Updated: 2024/01/04 11:36:22 by svidot           ###   ########.fr       */
+/*   Updated: 2024/01/04 15:15:15 by seblin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@
 static void	*free_spce_nde_if_empty(t_ast_nde *spce_nde, int *flag)
 {
 	if (!spce_nde->start)
-	{	
+	{
 		*flag = 0;
 		free(spce_nde);
 	}
@@ -25,7 +25,7 @@ static void	*free_spce_nde_if_empty(t_ast_nde *spce_nde, int *flag)
 }
 
 t_ast_nde	*set_space_nde(t_ast_nde *node)
-{	
+{
 	static t_ast_nde	*spce_nde;
 	static int			flag;
 
