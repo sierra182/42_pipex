@@ -6,7 +6,7 @@
 /*   By: svidot <svidot@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/19 15:23:23 by svidot            #+#    #+#             */
-/*   Updated: 2024/01/04 11:12:52 by svidot           ###   ########.fr       */
+/*   Updated: 2024/01/04 17:08:41 by svidot           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,8 +73,12 @@ void	here_doc_handle(char **argv[], int pipefd_in[])
 		line = get_next_line(0);
 		if (line)
 		{
-			if (ft_strncmp(line, h_doc, ft_strlen(h_doc) - 1))
+			line[ft_strlen(line) - 1] = 0;
+			if (ft_strcmp(line, h_doc))
+			{
+				line[ft_strlen(line)] = '\n';
 				ft_putstr_fd(line, pipefd_in[1]);
+			}
 			else
 			{
 				free(line);
@@ -82,8 +86,6 @@ void	here_doc_handle(char **argv[], int pipefd_in[])
 				break ;
 			}
 		}
-		else
-			ft_printf("\n");
 		free(line);
 	}
 }
