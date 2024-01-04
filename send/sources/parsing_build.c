@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parsing_build.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: svidot <svidot@student.42.fr>              +#+  +:+       +#+        */
+/*   By: seblin <seblin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/03 16:08:19 by svidot            #+#    #+#             */
-/*   Updated: 2024/01/04 11:40:04 by svidot           ###   ########.fr       */
+/*   Updated: 2024/01/04 15:15:50 by seblin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,7 +38,7 @@ static char	*build_node(char *start, char *start_sav, char *end)
 }
 
 static char	**create_array(t_ast_nde *node)
-{	
+{
 	int	i;
 
 	i = 0;

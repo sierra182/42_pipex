@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parsing_invrt.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: svidot <svidot@student.42.fr>              +#+  +:+       +#+        */
+/*   By: seblin <seblin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/03 16:08:19 by svidot            #+#    #+#             */
-/*   Updated: 2024/01/04 15:04:57 by svidot           ###   ########.fr       */
+/*   Updated: 2024/01/04 15:17:11 by seblin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 #include "parsing_utils.h"
 
 t_ast_nde	*invert_node(t_ast_nde *node, char **argv)
-{	
+{
 	t_ast_nde	*invrt_nde;
 
 	invrt_nde = create_node(INVRT);

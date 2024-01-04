@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parsing_qute.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: svidot <svidot@student.42.fr>              +#+  +:+       +#+        */
+/*   By: seblin <seblin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/03 16:08:19 by svidot            #+#    #+#             */
-/*   Updated: 2024/01/04 11:38:15 by svidot           ###   ########.fr       */
+/*   Updated: 2024/01/04 15:16:53 by seblin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@
 #include "parsing_utils.h"
 
 char	clean_quotes(char *start, t_ast_nde	*qute_nde)
-{	
+{
 	static t_ast_nde	*lcl_qute_nde;
 	t_ast_nde			*tmp_nde;
 
@@ -54,7 +54,7 @@ static void	set_dqute_nde(t_ast_nde *dqute, t_ast_nde *sibling_sav,
 		(*argv)++;
 	}
 	if (dqute->start && !dqute->end)
-	{		
+	{
 		ft_putstr_fd("double quote error\n", 2);
 		close(fd_file[1]);
 		free_sib(sibling_sav);
@@ -81,7 +81,7 @@ static void	set_squte_nde(t_ast_nde *squte, t_ast_nde *sibling_sav,
 		(*argv)++;
 	}
 	if (squte->start && !squte->end)
-	{		
+	{
 		ft_putstr_fd("simple quote error\n", 2);
 		close(fd_file[1]);
 		free_sib(sibling_sav);
