@@ -6,7 +6,7 @@
 /*   By: svidot <svidot@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/19 15:23:23 by svidot            #+#    #+#             */
-/*   Updated: 2024/01/04 17:08:41 by svidot           ###   ########.fr       */
+/*   Updated: 2024/01/06 11:06:47 by svidot           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -124,6 +124,8 @@ int	main(int argc, char *argv[], char *envp[])
 	int		flag;
 
 	flag = 0;
+	if (argc == 1)
+		return (1);
 	if (!ft_strcmp(*(argv + 1), "here_doc") && BONUS)
 	{
 		argv++;
