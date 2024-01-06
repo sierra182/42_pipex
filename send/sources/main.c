@@ -6,7 +6,7 @@
 /*   By: svidot <svidot@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/19 15:23:23 by svidot            #+#    #+#             */
-/*   Updated: 2024/01/06 11:06:35 by svidot           ###   ########.fr       */
+/*   Updated: 2024/01/06 15:41:26 by svidot           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,6 +44,7 @@ void	nurcery(char *argv[], char *envp[], int fd_file[], int *pipefd[])
 		pid = fork();
 		if (pid == 0)
 		{
+			close(fd_file[1]);
 			set_pipe_forward(pipefd[0], pipefd[1]);
 			split = parse_cmd(argv, envp, fd_file);
 			execve(split[0], split, envp);
